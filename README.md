@@ -1,0 +1,2 @@
+# Google Tasks Clone – Pure HTML, CSS & JavaScript (Vanilla JS)
+A clean, fully functional web-based clone of the Google Tasks app, built from scratch using only HTML5, CSS3, and vanilla JavaScript — no frameworks, no build tools, no external libraries.
