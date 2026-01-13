@@ -94,7 +94,7 @@ svg:hover, .right-nav img:hover {
 
 .sidebar {
     width: 250px;
-    height: 100vh;
+    height: 100%;
     display: flex;
     flex-direction: column;
     margin-top: 20px;
@@ -154,14 +154,17 @@ svg:hover, .right-nav img:hover {
 
 .task-features ul li svg {
     margin-left: 15px;
+    vertical-align: bottom;
 }
 
 .task-features ul li:nth-child(2):hover {
     background-color: var(--navbar-icons-hover-color);
+    cursor: pointer;
 }
 
 .task-features ul li:first-child:hover, .task-features ul li:first-child svg:hover {
     background-color: var(--all-task-list-item-hover-bg-color);
+    cursor: pointer;
 }
 
 .mylist-feature {
@@ -180,8 +183,29 @@ svg:hover, .right-nav img:hover {
     justify-content: space-between;
 }
 
+.list-icon.active-list {
+    transform: rotate(180deg);
+}
+
+.list-icon {
+    padding: 3px;
+    transition: transform 0.5 ease-in;
+    
+}
+
 .list-names {
     width: 95%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list-names.active {
+    display: none;
+}
+
+.list-entry {
+    width: 97%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -210,8 +234,75 @@ svg:hover, .right-nav img:hover {
 .create-list:hover {
     background-color: var(--navbar-icons-hover-color);
     border-radius: 30px;
+    cursor: pointer;
+}
+
+.create-list span svg {
+    vertical-align: bottom;
 }
 
 .tasks-container {
     display: inline;
+}
+
+.create-list-overlay {
+    position: fixed;
+    background-color: #1b1b1b00;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    display: none;
+    z-index: 9;
+}
+
+.form-layout {
+    display: none;
+    position: fixed;
+    right: 40%;
+    top: 36%;
+    z-index: 10;
+}
+
+.form-layout form {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #282a2c;
+    border-radius: 20px;
+}
+
+.form-layout form label {
+   margin: 20px 20px 0px 20px;
+   padding-top: 10px;
+}
+
+.form-layout form input[type='text'] {
+   margin: 0px 20px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #37393b;
+    border: none;
+}
+
+.button-layout {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2px;
+    margin-bottom: 20px;
+    margin-right: 15px;
+    padding: 5px;
+}
+
+.button-layout a {
+    padding: 10px;
+    color: #a8c7fa;
+    font-size: 0.78rem;
+}
+
+.button-layout a:hover {
+    background-color: #37393b;
+    border-radius: 25px;
+    cursor: pointer;
 }
