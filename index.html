@@ -38,7 +38,7 @@
     <main>
         <div class="sidebar">
             <div class="create-btn-container">
-                <button>
+                <button id="create-task-btn">
                     <span>
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"
                             fill="#FFFFFF">
@@ -79,7 +79,7 @@
                     <span>
                         <svg id="list-collapse" class="list-icon" xmlns="http://www.w3.org/2000/svg" height="24px"
                             viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
-                            <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z" />
+                            <path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z" />
                         </svg>
                     </span>
                 </div>
@@ -108,8 +108,8 @@
             </div>
         </div>
         <div class="create-list-overlay"></div>
-            <div class="form-layout">
-                <form id="create-list-form">
+        <div class="form-layout">
+            <form id="create-list-form">
                 <label for="listname">Create new list</label>
                 <input type="text" id="listname" name="listname" placeholder="Enter name" required>
                 <div class="button-layout">
@@ -117,7 +117,62 @@
                     <a id="create-list-done-btn">Done</a>
                 </div>
             </form>
+        </div>
+        <div class="task-form-layout">
+            <div class="cancel-wrap">
+                <svg id="create-form-cancel" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                    width="24px" fill="#FFFFFF">
+                    <path
+                        d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                </svg>
             </div>
+            <div class="input-title-wrap">
+                <input type="text" id="task-title" placeholder="Add title" autofocus />
+            </div>
+            <div class="time-field-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#FFFFFF">
+                    <path
+                        d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z" />
+                </svg>
+                <input type="text" id="task-date" placeholder="Set date" required />
+                <input type="text" id="task-time" placeholder="Set time" required />
+            </div>
+            <div class="day-all-wrap">
+                <label class="container">All day
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="repeat-options-wrap">
+                <select>
+                    <option>Does not repeat</option>
+                    <option>Daily</option>
+                    <option>Weekly on Thursday</option>
+                </select>
+            </div>
+            <div class="description-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#FFFFFF">
+                    <path d="M120-240v-80h480v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+                </svg>
+                <textarea rows="4" placeholder="Add description"></textarea>
+            </div>
+            <div class="list-select-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#FFFFFF">
+                    <path
+                        d="M320-280q17 0 28.5-11.5T360-320q0-17-11.5-28.5T320-360q-17 0-28.5 11.5T280-320q0 17 11.5 28.5T320-280Zm0-160q17 0 28.5-11.5T360-480q0-17-11.5-28.5T320-520q-17 0-28.5 11.5T280-480q0 17 11.5 28.5T320-440Zm0-160q17 0 28.5-11.5T360-640q0-17-11.5-28.5T320-680q-17 0-28.5 11.5T280-640q0 17 11.5 28.5T320-600Zm120 320h240v-80H440v80Zm0-160h240v-80H440v80Zm0-160h240v-80H440v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
+                </svg>
+                <select>
+                    <option>List 1</option>
+                    <option>My List 2</option>
+                </select>
+            </div>
+            <div class="save-button-wrap">
+                <button type="submit">Save</button>
+            </div>
+        </div>
     </main>
 
     <script src="./script.js"></script>
