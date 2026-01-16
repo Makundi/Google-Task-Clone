@@ -25,6 +25,11 @@ body {
     font-family: 'Google Sans Flex', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+main {
+    display: flex;
+    gap: 20px;
+}
+
 header nav {
     display: flex;
     justify-content: space-between;
@@ -528,4 +533,65 @@ background-color: var(--navbar-icons-hover-color);
 
 .repeat-options-wrap select, .list-select-wrap select {
     width: 200px;
+}
+
+.tasks-container {
+    /*background-color: #131314;*/
+    display: flex;
+    gap: 20px;
+}
+
+.task-card {
+    width: 500px;
+    height: auto;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #131314;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-card-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-card-nav {
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-new-task-row{
+    width: 100%;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    color: #a8c7fa;
+}
+
+.task-card-body, .completed-tasks {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-list-entry-container{
+     width: 100%;
+    display: inline-flex;
+    gap: 20px;
+}
+
+.completed-tasks-header {
+     width: 100%;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.completed-tasks {
+    margin-left: 0px;
 }

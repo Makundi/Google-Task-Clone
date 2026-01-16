@@ -107,6 +107,64 @@
                 <span id="create-list">Create new list</span>
             </div>
         </div>
+        <div class="tasks-container">
+            <div class="task-card">
+                <div class="task-card-header">
+                    <div class="task-card-nav">
+                        <div class="tasklistname">
+                            <span id="task-list-name">My Task</span>
+                        </div>
+                        <div class="task-card-menu-svg">
+                            <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+                                <path
+                                    d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                            </svg>
+
+                        </div>
+                    </div>
+                    <div class="add-new-task-row">
+                        <div class="new-task-icon">
+                            <svg id="add-new-task-icon" xmlns="http://www.w3.org/2000/svg" height="20px"
+                            viewBox="0 -960 960 960" width="20px" fill="#a8c7fa">
+                            <path
+                                d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q32 0 62-6t58-17l60 61q-41 20-86 31t-94 11Zm280-80v-120H640v-80h120v-120h80v120h120v80H840v120h-80ZM424-296 254-466l56-56 114 114 400-401 56 56-456 457Z" />
+                        </svg>
+                        </div>
+                        <div class="add-task-label">
+                            <span class="add-new-task-btn">Add a task</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="task-card-body">
+                    <div class="task-list">
+                        <div class="task-list-entry-container">
+                            <div class="checkbox-container">
+                                <input type="checkbox">
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">Coding</span>
+                                <p id="task-entry-description">I need to code some components</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="completed-tasks">
+                        <div class="completed-tasks-header">
+                            <div class="task-icon-right">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#FFFFFF">
+                                <path d="M400-280v-400l200 200-200 200Z" />
+                            </svg>
+                            </div>
+                            <span>Completed (2)</span>
+                        </div>
+                        <div class="completed-tasks-body">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="create-list-overlay"></div>
         <div class="form-layout">
             <form id="create-list-form">
