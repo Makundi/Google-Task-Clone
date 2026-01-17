@@ -84,16 +84,6 @@
                     </span>
                 </div>
                 <div class="list-names">
-                    <div class="list-entry">
-                        <input type="checkbox">
-                        <span id="task-name">My Tasks</span>
-                        <span id="number-of-tasks">2</span>
-                    </div>
-                    <div class="list-entry">
-                        <input type="checkbox">
-                        <span id="task-name">My Tasks</span>
-                        <span id="number-of-tasks">2</span>
-                    </div>
                 </div>
 
             </div>
@@ -159,7 +149,15 @@
                             <span>Completed (2)</span>
                         </div>
                         <div class="completed-tasks-body">
-
+                            <div class="completed-tasks-entry">
+                                <div class="checkbox-container">
+                                <input type="checkbox">
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">Coding</span>
+                                <p id="task-entry-description">I need to code some components</p>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,8 +169,8 @@
                 <label for="listname">Create new list</label>
                 <input type="text" id="listname" name="listname" placeholder="Enter name" required>
                 <div class="button-layout">
-                    <a id="create-list-cancel-btn">Cancel</a>
-                    <a id="create-list-done-btn">Done</a>
+                    <button id="create-list-cancel-btn" type="reset">Cancel</button>
+                    <button id="create-list-done-btn" type="submit">Done</button>
                 </div>
             </form>
         </div>
