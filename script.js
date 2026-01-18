@@ -20,6 +20,7 @@ const listNameInput = document.getElementById("listname");
 const createForm = document.getElementById("create-list-form");
 const taskContainer = document.querySelector(".tasks-container");
 
+
 menuIcon.addEventListener('click', () => {
     sideBar.classList.toggle('show-sidebar');
 });
@@ -56,7 +57,7 @@ createTaskFormCancel.addEventListener('click', () => {
 });
 
 completedTasksBtn.addEventListener('click', () => {
-    completedTasksBtn.classList.toggle('active')
+    completedTasksBtn.classList.toggle('active');
 });
 
 createForm.addEventListener('submit', (event) => {
@@ -69,9 +70,9 @@ createForm.addEventListener('submit', (event) => {
 
     localStorage.setItem("data", JSON.stringify(dataArr));
 
-    
+
     updateListNames();
-    updateTaskContainer()
+    filterCheckedList();
     listNameInput.value = "";
     createListForm.style.display = "none";
     createListOverlay.style.display = "none";
@@ -79,12 +80,12 @@ createForm.addEventListener('submit', (event) => {
 
 
 const updateListNames = () => {
-     listNames.innerHTML = "";
-    
-    dataArr.forEach(({listname}) => {
+    listNames.innerHTML = "";
+
+    dataArr.forEach(({ listname }) => {
         (listNames.innerHTML += `
         <div class="list-entry">
-            <input type="checkbox">
+            <input type="checkbox" class="listname-checkbox" id="${listname}-checkbox" value="${listname}" checked onclick="filterCheckedList()" >
             <span id="task-name">${listname}</span>
             <span id="number-of-tasks">0</span>
         </div>
@@ -92,16 +93,19 @@ const updateListNames = () => {
     });
 }
 
-const updateTaskContainer = () => {
+const filterCheckedList = () => {
+    const listNameCheckboxes = document.querySelectorAll(".listname-checkbox");
     taskContainer.innerHTML = "";
 
-    dataArr.forEach(({listname}) => {
-        (taskContainer.innerHTML += `
-        <div class="task-card">
+    listNameCheckboxes.forEach(checkbox => {
+
+        if (checkbox.checked) {
+            taskContainer.innerHTML += `
+            <div class="task-card">
                 <div class="task-card-header">
                     <div class="task-card-nav">
                         <div class="tasklistname">
-                            <span id="task-list-name">${listname}</span>
+                            <span id="task-list-name">${checkbox.value}</span>
                         </div>
                         <div class="task-card-menu-svg">
                             <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
@@ -128,12 +132,12 @@ const updateTaskContainer = () => {
                 <div class="task-card-body">
                 </div>
             </div>
-    `)
+        `;
+        }
     });
+}
 
- }
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     updateListNames();
-    updateTaskContainer();
+    filterCheckedList();
 });
