@@ -107,12 +107,51 @@ const filterCheckedList = () => {
                         <div class="tasklistname">
                             <span id="task-list-name">${checkbox.value}</span>
                         </div>
-                        <div class="task-card-menu-svg">
+                        <div class="task-card-menu-svg" id="task-card-menu-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                             <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
                                 viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
                                 <path
                                     d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
                             </svg>
+                            <div class="dropdown-list-menu" id="${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                <div class="sort-section">
+                                    <span>Sort by</span>
+                                    <div class="sort-options">
+                                        <div class="sort-by-my-order">
+                                            <label class="container options">My order
+                                                <input type="checkbox" checked="checked">
+                                                <span class="checkmark my-order"></span>
+                                            </label>
+                                        </div>
+                                        <div class="sort-by-date">
+                                            <label class="container options">Date
+                                                <input type="checkbox">
+                                                <span class="checkmark my-order"></span>
+                                            </label>
+                                        </div>
+                                        <div class="sort-by-starred">
+                                            <label class="container options">Starred Recently
+                                                <input type="checkbox" >
+                                                <span class="checkmark my-order"></span>
+                                            </labe>
+                                        </div>
+                                        <div class="sort-by-title">
+                                            <label class="container options">Title
+                                                <input type="checkbox">
+                                                <span class="checkmark my-order"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-edit-section">
+                                    <span>Delete list</span>
+                                    <span>Rename list</span>
+                                </div>
+                                <div class="task-edit-section">
+                                    <span>Print list</span>
+                                    <span>Delete all completed tasks</span>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -137,7 +176,21 @@ const filterCheckedList = () => {
     });
 }
 
+const listMenuToggle = () => {
+    const taskCardMenuSvg = document.querySelectorAll(".task-card-menu-svg");
+
+    taskCardMenuSvg.forEach(svg => {
+        svg.addEventListener('click', () => {
+            const dropdownListMenu = document.getElementById(svg.id.slice(19));
+            dropdownListMenu.classList.toggle('hide-menu');
+        });
+    });
+
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     updateListNames();
     filterCheckedList();
+    listMenuToggle();
 });

@@ -95,8 +95,10 @@ header img {
     padding: 10px;
 }
 
-.right-nav svg:hover, .left-nav svg:hover,
-.right-nav img:hover, .list-icon:hover {
+.right-nav svg:hover,
+.left-nav svg:hover,
+.right-nav img:hover,
+.list-icon:hover {
     background-color: var(--navbar-icons-hover-color);
     border-radius: 50%;
     cursor: pointer;
@@ -396,7 +398,12 @@ button svg:hover {
     color: #c4c7c5;
 }
 
-.input-title-wrap input[type='text']:focus-visible, .time-field-wrap input:focus-visible, .repeat-options-wrap select:focus-visible, .list-select-wrap select:focus-visible, .description-wrap textarea:focus-visible, #listname:focus-visible {
+.input-title-wrap input[type='text']:focus-visible,
+.time-field-wrap input:focus-visible,
+.repeat-options-wrap select:focus-visible,
+.list-select-wrap select:focus-visible,
+.description-wrap textarea:focus-visible,
+#listname:focus-visible {
     outline: none;
     border-bottom: 2px solid #a8c7fa;
     outline-offset: 0px;
@@ -409,7 +416,7 @@ button svg:hover {
 }
 
 #task-date {
-   width: 120px;
+    width: 120px;
 }
 
 .day-all-wrap {
@@ -420,68 +427,105 @@ button svg:hover {
 
 .day-all-wrap .container {
     display: block;
-  position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  cursor: pointer;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+/* The container */
+.container {
+    display: block;
+    position: relative;
+    padding-left: 15px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.container.options {
+    padding: 5px 110px 5px 30px;
+    margin: 5px 0;
+    width: 100%;
 }
 
 /* Hide the browser's default checkbox */
 .container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
 .checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 20px;
-  width: 20px;
-  background:none;
- border: 2px solid #ccc;
- border-radius: 2px;
- padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background: none;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.checkmark.my-order {
+    border: none;
+    
 }
 
 /* On mouse-over, add a grey background color */
-.container:hover input ~ .checkmark{
-background-color: var(--navbar-icons-hover-color);
-  
+.container:hover input~.checkmark {
+    background-color: var(--navbar-icons-hover-color);
+
+}
+
+.container:hover input~.checkmark.my-order {
+    background: none;
+
 }
 
 /* When the checkbox is checked, add a blue background */
-.container input:checked ~ .checkmark {
-  background-color: #a8c7fa;
-  border: none;
+.container input:checked~.checkmark {
+    background-color: #a8c7fa;
+    border: none;
+}
+
+.container input:checked~.checkmark.my-order {
+    background: none;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
+    content: "";
+    position: absolute;
+    display: none;
 }
 
 /* Show the checkmark when checked */
-.container input:checked ~ .checkmark:after {
-  display: block;
+.container input:checked~.checkmark:after {
+    display: inline-block;
 }
 
 /* Style the checkmark/indicator */
 .container .checkmark:after {
-  left: 7px;
-  top: 2px;
-  width: 3px;
-  height: 10px;
-  border: solid black;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
+    left: 7px;
+    top: 2px;
+    width: 3px;
+    height: 10px;
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.container .checkmark.my-order:after {
+    left: 7px;
+    top: 5px;
+    width: 3px;
+    height: 10px;
+    border: solid #ccc;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 .repeat-options-wrap {
@@ -506,7 +550,10 @@ background-color: var(--navbar-icons-hover-color);
     justify-content: flex-end;
 }
 
-.time-field-wrap input, .description-wrap textarea,  .repeat-options-wrap select, .list-select-wrap select{
+.time-field-wrap input,
+.description-wrap textarea,
+.repeat-options-wrap select,
+.list-select-wrap select {
     background: none;
     border: none;
     background-color: #37393b;
@@ -514,10 +561,14 @@ background-color: var(--navbar-icons-hover-color);
     appearance: none;
     color: #e3e3e3;
     padding: 13px;
-    
+
 }
 
-.time-field-wrap input:hover, .description-wrap textarea:hover, .repeat-options-wrap select:hover,  .list-select-wrap select:hover, #listname:hover{
+.time-field-wrap input:hover,
+.description-wrap textarea:hover,
+.repeat-options-wrap select:hover,
+.list-select-wrap select:hover,
+#listname:hover {
     background-color: #444746;
 }
 
@@ -536,7 +587,8 @@ background-color: var(--navbar-icons-hover-color);
     padding: 15px;
 }
 
-.repeat-options-wrap select, .list-select-wrap select {
+.repeat-options-wrap select,
+.list-select-wrap select {
     width: 200px;
 }
 
@@ -557,7 +609,7 @@ background-color: var(--navbar-icons-hover-color);
     background-color: #131314;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
 }
 
 .task-card-header {
@@ -572,7 +624,7 @@ background-color: var(--navbar-icons-hover-color);
     justify-content: space-between;
 }
 
-.add-new-task-row{
+.add-new-task-row {
     width: 100%;
     display: inline-flex;
     gap: 10px;
@@ -580,21 +632,26 @@ background-color: var(--navbar-icons-hover-color);
     color: #a8c7fa;
 }
 
-.task-card-body, .completed-tasks {
+.new-task-icon {
+    padding-right: 2px;
+}
+
+.task-card-body,
+.completed-tasks {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.task-list-entry-container{
-     width: 100%;
+.task-list-entry-container {
+    width: 100%;
     display: inline-flex;
     gap: 20px;
 }
 
 .completed-tasks-header {
-     width: 100%;
+    width: 100%;
     display: inline-flex;
     gap: 10px;
     align-items: center;
@@ -605,7 +662,7 @@ background-color: var(--navbar-icons-hover-color);
     margin-left: 0px;
 }
 
-.completed-tasks-entry{
+.completed-tasks-entry {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.1s ease;
@@ -622,7 +679,10 @@ background-color: var(--navbar-icons-hover-color);
     max-height: 300px;
     animation: fade 0.1s ease-in-out;
 }
+
 .completed-tasks .task-icon-right svg {
+    position: relative;
+    left: -2px;
     transition: transform 0.1s ease-in;
 }
 
@@ -630,11 +690,92 @@ background-color: var(--navbar-icons-hover-color);
     transform: rotate(90deg);
 }
 
+.task-card-menu-svg {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.task-card-menu-svg:hover {
+    background-color: #1b1b1b;
+    cursor: pointer;
+}
+
+.dropdown-list-menu {
+    width: 256px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    top: 30.2px;
+    right: -2px;
+    padding: 8px 20px;
+    background-color: #444746;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 200;
+    z-index: 4;
+}
+
+.dropdown-list-menu.hide-menu {
+    display: flex;
+}
+
+.sort-options {
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sort-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #ccc;
+}
+
+.container.options:hover,
+.list-edit-section span:hover,
+ .task-edit-section span:hover{
+    background-color: #37393b;
+    cursor: pointer;
+}
+
+.list-edit-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.list-edit-section span,
+.task-edit-section span {
+    padding: 5px;
+}
+
+.list-edit-section span:last-child,
+.task-edit-section span:last-child {
+    margin-bottom: 10px;
+}
+
+.task-edit-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+
 @keyframes fade {
     from {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0px);
