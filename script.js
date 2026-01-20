@@ -1,5 +1,5 @@
-
 const dataArr = JSON.parse(localStorage.getItem("data")) || [];
+let currentTask = {};
 
 const menuIcon = document.getElementById("menu-icon");
 const sideBar = document.querySelector(".sidebar");
@@ -63,19 +63,9 @@ completedTasksBtn.addEventListener('click', () => {
 createForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    const dataPoint = {}
-    const name = listNameInput.value;
-    dataPoint["listname"] = name;
-    dataArr.unshift(dataPoint);
-
-    localStorage.setItem("data", JSON.stringify(dataArr));
-
-
+    createOrRenameList();
     updateListNames();
     filterCheckedList();
-    listNameInput.value = "";
-    createListForm.style.display = "none";
-    createListOverlay.style.display = "none";
 });
 
 
@@ -84,7 +74,7 @@ const updateListNames = () => {
 
     dataArr.forEach(({ listname }) => {
         (listNames.innerHTML += `
-        <div class="list-entry">
+        <div class="list-entry" id="list-entry-${listname.trim().replace(" ", "-").toLowerCase()}">
             <input type="checkbox" class="listname-checkbox" id="${listname}-checkbox" value="${listname}" checked onclick="filterCheckedList()" >
             <span id="task-name">${listname}</span>
             <span id="number-of-tasks">0</span>
@@ -101,13 +91,13 @@ const filterCheckedList = () => {
 
         if (checkbox.checked) {
             taskContainer.innerHTML += `
-            <div class="task-card">
+            <div class="task-card" id="task-card-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                 <div class="task-card-header">
                     <div class="task-card-nav">
                         <div class="tasklistname">
                             <span id="task-list-name">${checkbox.value}</span>
                         </div>
-                        <div class="task-card-menu-svg" id="task-card-menu-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                        <div class="task-card-menu-svg" data-menu="${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                             <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
                                 viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
                                 <path
@@ -144,8 +134,8 @@ const filterCheckedList = () => {
                                     </div>
                                 </div>
                                 <div class="list-edit-section">
-                                    <span>Delete list</span>
-                                    <span>Rename list</span>
+                                    <span id="delete-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="deleteList(this)">Delete list</span>
+                                    <span id="rename-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="renameList(this)">Rename list</span>
                                 </div>
                                 <div class="task-edit-section">
                                     <span>Print list</span>
@@ -176,21 +166,81 @@ const filterCheckedList = () => {
     });
 }
 
-const listMenuToggle = () => {
-    const taskCardMenuSvg = document.querySelectorAll(".task-card-menu-svg");
+const createOrRenameList = () => {
+    const dataPoint = {}
+    const dataArrIndex = dataArr.findIndex(data => data["listname"] === currentTask.listname);
 
-    taskCardMenuSvg.forEach(svg => {
-        svg.addEventListener('click', () => {
-            const dropdownListMenu = document.getElementById(svg.id.slice(19));
-            dropdownListMenu.classList.toggle('hide-menu');
-        });
-    });
+    dataPoint["listname"] = listNameInput.value;
+
+    if (dataArrIndex === -1) {
+        dataArr.unshift(dataPoint);
+    }else {
+        dataArr[dataArrIndex] = dataPoint;
+    }
+
+    localStorage.setItem("data", JSON.stringify(dataArr));
+
+
+    listNameInput.value = "";
+    createListForm.style.display = "none";
+    createListOverlay.style.display = "none";
+}
+
+
+taskContainer.addEventListener("click", (e) => {
+    const menuBtn = e.target.closest(".task-card-menu-svg");
+    if (!menuBtn) return;
+
+    const menuId = menuBtn.dataset.menu;
+    const currentMenu = document.getElementById(menuId);
+    if (!currentMenu) return;
+
+    const isOpen = currentMenu.classList.contains("show-menu");
+
+    // Close all menus
+    document.querySelectorAll(".dropdown-list-menu.show-menu")
+        .forEach(menu => menu.classList.remove("show-menu"));
+
+    // Re-open only if it was previously closed
+    if (!isOpen) {
+        currentMenu.classList.add("show-menu");
+    }
+});
+
+const deleteList = (deleteBtn) => {
+    const listname = deleteBtn.id.slice(12).replace("-", " ");
+    const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
+
+    document.getElementById(`task-card-${listname.replace(" ", "-")}`).remove();
+    document.getElementById(`list-entry-${listname.replace(" ", "-")}`).remove();
+
+    dataArr.splice(dataArrIndex, 1);
+    localStorage.setItem("data", JSON.stringify(dataArr));
+}
+
+const renameList = (renameBtn) => {
+    const listname = renameBtn.id.slice(12).replace("-", " ");
+    const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
+
+    currentTask = dataArr[dataArrIndex];
+
+    console.log(currentTask);
+
+    listNameInput.value = currentTask.listname;
+    createListForm.style.display = "block";
+    createListOverlay.style.display = "block";
 
 }
+
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".task-card-menu-svg")) {
+        document.querySelectorAll(".dropdown-list-menu.show-menu")
+            .forEach(menu => menu.classList.remove("show-menu"));
+    }
+});
 
 
 document.addEventListener("DOMContentLoaded", function () {
     updateListNames();
     filterCheckedList();
-    listMenuToggle();
-});
+}); 

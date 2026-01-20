@@ -719,7 +719,7 @@ button svg:hover {
     z-index: 4;
 }
 
-.dropdown-list-menu.hide-menu {
+.dropdown-list-menu.show-menu {
     display: flex;
 }
 
