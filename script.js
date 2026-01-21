@@ -1,5 +1,8 @@
 const dataArr = JSON.parse(localStorage.getItem("data")) || [];
+const taskDataArr = JSON.parse(localStorage.getItem("tasks")) || [];
+
 let currentTask = {};
+let currentTask2 = {};
 
 const menuIcon = document.getElementById("menu-icon");
 const sideBar = document.querySelector(".sidebar");
@@ -19,6 +22,11 @@ const completedTasksBody = document.querySelector(".completed-tasks-body");
 const listNameInput = document.getElementById("listname");
 const createForm = document.getElementById("create-list-form");
 const taskContainer = document.querySelector(".tasks-container");
+const taskTitle = document.getElementById("task-title");
+const taskDate = document.getElementById("task-date");
+const taskDescription = document.getElementById("task-description");
+const selectContainer = document.getElementById("select-container");
+const saveTaskBtn = document.getElementById("save-task-btn1");
 
 
 menuIcon.addEventListener('click', () => {
@@ -54,6 +62,7 @@ createTaskBtn.addEventListener('click', () => {
 createTaskFormCancel.addEventListener('click', () => {
     taskFormLayout.style.display = "none";
     createListOverlay.style.display = "none";
+    resetTaskForm();
 });
 
 completedTasksBtn.addEventListener('click', () => {
@@ -65,21 +74,74 @@ createForm.addEventListener('submit', (event) => {
 
     createOrRenameList();
     updateListNames();
+    updateSelectListOptions();
     filterCheckedList();
 });
 
+taskContainer.addEventListener("click", (e) => {
+    const menuBtn = e.target.closest(".task-card-menu-svg");
+    if (!menuBtn) return;
+
+    const menuId = menuBtn.dataset.menu;
+    const currentMenu = document.getElementById(menuId);
+    if (!currentMenu) return;
+
+    const isOpen = currentMenu.classList.contains("show-menu");
+
+    // Close all menus
+    document.querySelectorAll(".dropdown-list-menu.show-menu")
+        .forEach(menu => menu.classList.remove("show-menu"));
+
+    // Re-open only if it was previously closed
+    if (!isOpen) {
+        currentMenu.classList.add("show-menu");
+    }
+});
+
+
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".task-card-menu-svg")) {
+        document.querySelectorAll(".dropdown-list-menu.show-menu")
+            .forEach(menu => menu.classList.remove("show-menu"));
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateListNames();
+    filterCheckedList();
+    updateSelectListOptions();
+    updateTaskList();
+});
+
+taskFormLayout.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    addTask();
+    taskFormLayout.style.display = "none";
+    createListOverlay.style.display = "none";
+});
+
+const countNumberofTasks = (nameOfList) => {
+    let count = 0;
+    taskDataArr.filter(task => task.listName === nameOfList).forEach(task => {
+        count++;
+    });
+    return count;
+}
 
 const updateListNames = () => {
     listNames.innerHTML = "";
 
     dataArr.forEach(({ listname }) => {
-        (listNames.innerHTML += `
+
+        listNames.innerHTML += `
         <div class="list-entry" id="list-entry-${listname.trim().replace(" ", "-").toLowerCase()}">
             <input type="checkbox" class="listname-checkbox" id="${listname}-checkbox" value="${listname}" checked onclick="filterCheckedList()" >
             <span id="task-name">${listname}</span>
-            <span id="number-of-tasks">0</span>
+            <span id="number-of-tasks">${countNumberofTasks(listname)}</span>
         </div>
-    `)
+    `
     });
 }
 
@@ -88,7 +150,6 @@ const filterCheckedList = () => {
     taskContainer.innerHTML = "";
 
     listNameCheckboxes.forEach(checkbox => {
-
         if (checkbox.checked) {
             taskContainer.innerHTML += `
             <div class="task-card" id="task-card-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
@@ -159,11 +220,15 @@ const filterCheckedList = () => {
                     </div>
                 </div>
                 <div class="task-card-body">
+                    <div class="task-list" id="task-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                        
+                    </div>
                 </div>
             </div>
         `;
         }
     });
+    updateTaskList();
 }
 
 const createOrRenameList = () => {
@@ -174,7 +239,7 @@ const createOrRenameList = () => {
 
     if (dataArrIndex === -1) {
         dataArr.unshift(dataPoint);
-    }else {
+    } else {
         dataArr[dataArrIndex] = dataPoint;
     }
 
@@ -186,27 +251,6 @@ const createOrRenameList = () => {
     createListOverlay.style.display = "none";
 }
 
-
-taskContainer.addEventListener("click", (e) => {
-    const menuBtn = e.target.closest(".task-card-menu-svg");
-    if (!menuBtn) return;
-
-    const menuId = menuBtn.dataset.menu;
-    const currentMenu = document.getElementById(menuId);
-    if (!currentMenu) return;
-
-    const isOpen = currentMenu.classList.contains("show-menu");
-
-    // Close all menus
-    document.querySelectorAll(".dropdown-list-menu.show-menu")
-        .forEach(menu => menu.classList.remove("show-menu"));
-
-    // Re-open only if it was previously closed
-    if (!isOpen) {
-        currentMenu.classList.add("show-menu");
-    }
-});
-
 const deleteList = (deleteBtn) => {
     const listname = deleteBtn.id.slice(12).replace("-", " ");
     const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
@@ -216,6 +260,7 @@ const deleteList = (deleteBtn) => {
 
     dataArr.splice(dataArrIndex, 1);
     localStorage.setItem("data", JSON.stringify(dataArr));
+    updateSelectListOptions();
 }
 
 const renameList = (renameBtn) => {
@@ -229,18 +274,75 @@ const renameList = (renameBtn) => {
     listNameInput.value = currentTask.listname;
     createListForm.style.display = "block";
     createListOverlay.style.display = "block";
+    updateSelectListOptions();
 
 }
 
-document.addEventListener("click", (e) => {
-    if (!e.target.closest(".task-card-menu-svg")) {
-        document.querySelectorAll(".dropdown-list-menu.show-menu")
-            .forEach(menu => menu.classList.remove("show-menu"));
+const updateSelectListOptions = () => {
+    selectContainer.innerHTML = "";
+
+    dataArr.forEach(({ listname }) => {
+        selectContainer.innerHTML += `
+            <option value="${listname}">${listname}</option>
+        `;
+    })
+}
+
+const removeSpecialChars = (val) => {
+    return val.trim().replace(/[^A-Za-z0-9\-\s]/g, '')
+}
+
+const addTask = () => {
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === currentTask2.id);
+
+    const taskObj = {
+        id: `${removeSpecialChars(taskTitle.value).toLowerCase().split(" ").join("-")}-${Date.now()}`,
+        title: taskTitle.value,
+        date: taskDate.value,
+        description: taskDescription.value,
+        listName: selectContainer.value,
+    };
+
+    if (dataArrIndex === -1) {
+        taskDataArr.unshift(taskObj);
+    } else {
+        taskDataArr[dataArrIndex] = taskObj;
     }
-});
 
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+    updateTaskList();
+    resetTaskForm();
+}
 
-document.addEventListener("DOMContentLoaded", function () {
-    updateListNames();
-    filterCheckedList();
-}); 
+const updateTaskList = () => {
+    const listnameArr = document.querySelectorAll("#task-list-name");
+
+    listnameArr.forEach(name => {
+        const taskListContainer = document.getElementById(`task-list-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
+        taskListContainer.innerHTML = "";
+        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent);
+
+        filteredArr.forEach(({ id, title, date, description, listName }) => {
+            taskListContainer.innerHTML += `
+                <div class="task-list-entry-container">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">${title}</span>
+                                <p id="task-entry-description">${description}</p>
+                            </div>
+                        </div>
+            `
+        });
+    });
+}
+
+const resetTaskForm = () => {
+    taskTitle.value = "";
+    taskDate.value = "";
+    taskDescription.value = "";
+}
