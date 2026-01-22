@@ -65,8 +65,12 @@ createTaskFormCancel.addEventListener('click', () => {
     resetTaskForm();
 });
 
-completedTasksBtn.addEventListener('click', () => {
-    completedTasksBtn.classList.toggle('active');
+
+
+taskContainer.addEventListener("click", (e) => {
+    const completedTaskBtn = e.target.closest(".completed-tasks");
+    completedTaskBtn.classList.toggle('active');
+    updateCompletedContainer();
 });
 
 createForm.addEventListener('submit', (event) => {
@@ -118,13 +122,15 @@ taskFormLayout.addEventListener("submit", (e) => {
     e.preventDefault();
 
     addTask();
+    updateListNames();
+
     taskFormLayout.style.display = "none";
     createListOverlay.style.display = "none";
 });
 
 const countNumberofTasks = (nameOfList) => {
     let count = 0;
-    taskDataArr.filter(task => task.listName === nameOfList).forEach(task => {
+    taskDataArr.filter(task => task.listName === nameOfList && task.completed === "no").forEach(task => {
         count++;
     });
     return count;
@@ -143,6 +149,13 @@ const updateListNames = () => {
         </div>
     `
     });
+}
+const numberOfCompletedTasks = (nameOfList) => {
+    let count = 0;
+    taskDataArr.filter(task => task.listName === nameOfList && task.completed === "yes").forEach(task => {
+        count++;
+    });
+    return count;
 }
 
 const filterCheckedList = () => {
@@ -223,6 +236,20 @@ const filterCheckedList = () => {
                     <div class="task-list" id="task-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                         
                     </div>
+                    <div class="completed-tasks">
+                        <div class="completed-tasks-header">
+                            <div class="task-icon-right">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="#FFFFFF">
+                                    <path d="M400-280v-400l200 200-200 200Z" />
+                                </svg>
+                            </div>
+                            <span id="number-of-completed-task-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">Completed (${numberOfCompletedTasks(checkbox.value)})</span>
+                        </div>
+                        <div class="completed-tasks-body" id="completed-tasks-body-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                            
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -301,6 +328,7 @@ const addTask = () => {
         date: taskDate.value,
         description: taskDescription.value,
         listName: selectContainer.value,
+        completed: "no",
     };
 
     if (dataArrIndex === -1) {
@@ -320,14 +348,14 @@ const updateTaskList = () => {
     listnameArr.forEach(name => {
         const taskListContainer = document.getElementById(`task-list-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
         taskListContainer.innerHTML = "";
-        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent);
+        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "no");
 
         filteredArr.forEach(({ id, title, date, description, listName }) => {
             taskListContainer.innerHTML += `
-                <div class="task-list-entry-container">
+                <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
-                                    <input type="checkbox">
+                                    <input type="checkbox" id="${id}" onclick="updateCompletedTasks(this)">
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
@@ -346,3 +374,46 @@ const resetTaskForm = () => {
     taskDate.value = "";
     taskDescription.value = "";
 }
+
+const updateCompletedTasks = (el) => {
+    const taskEntryContainer = document.querySelector(`#task-list-entry-container-${el.id}`);
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id);
+    
+    taskDataArr[dataArrIndex].completed = "yes";
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    taskEntryContainer.remove();
+    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName}`).textContent = numberOfCompletedTasks(taskDataArr[dataArrIndex].listName);
+
+    updateCompletedContainer();
+    updateListNames();
+}
+
+const updateCompletedContainer = () => {
+    const listnameArr = document.querySelectorAll("#task-list-name");
+    
+    listnameArr.forEach(name => {
+        const completedTaskListContainer = document.getElementById(`completed-tasks-body-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
+        completedTaskListContainer.innerHTML = "";
+        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "yes");
+        
+        filteredArr.forEach(({ id, title, date, description, listName }) => {
+            console.log(id)
+            completedTaskListContainer.innerHTML += `
+                <div class="completed-tasks-entry" id="completed-tasks-entry-${id}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" id="completed-${id}" checked>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">${title}</span>
+                                <p id="task-entry-description">${description}</p>
+                            </div>
+                        </div>
+            `
+        });
+    });
+}
+
