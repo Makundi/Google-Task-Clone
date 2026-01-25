@@ -70,7 +70,8 @@ createTaskFormCancel.addEventListener('click', () => {
 taskContainer.addEventListener("click", (e) => {
     const completedTaskBtn = e.target.closest(".completed-tasks");
     completedTaskBtn.classList.toggle('active');
-    updateCompletedContainer();
+
+    //updateCompletedContainer();
 });
 
 createForm.addEventListener('submit', (event) => {
@@ -116,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
     filterCheckedList();
     updateSelectListOptions();
     updateTaskList();
+    updateCompletedContainer();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
@@ -181,29 +183,25 @@ const filterCheckedList = () => {
                                 <div class="sort-section">
                                     <span>Sort by</span>
                                     <div class="sort-options">
-                                        <div class="sort-by-my-order">
-                                            <label class="container options">My order
-                                                <input type="checkbox" checked="checked">
-                                                <span class="checkmark my-order"></span>
-                                            </label>
+                                        <div class="sort-by-my-order" id="my-order-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg show" id="my-order-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            </div>
+                                           <span>My order</span>
                                         </div>
-                                        <div class="sort-by-date">
-                                            <label class="container options">Date
-                                                <input type="checkbox">
-                                                <span class="checkmark my-order"></span>
-                                            </label>
+                                        <div class="sort-by-date" id="date-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="date-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            </div>
+                                            <span>Date</span>               
                                         </div>
-                                        <div class="sort-by-starred">
-                                            <label class="container options">Starred Recently
-                                                <input type="checkbox" >
-                                                <span class="checkmark my-order"></span>
-                                            </labe>
+                                        <div class="sort-by-starred" id="starred-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="starred-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            </div>
+                                           <span>Starred recently</span>
                                         </div>
-                                        <div class="sort-by-title">
-                                            <label class="container options">Title
-                                                <input type="checkbox">
-                                                <span class="checkmark my-order"></span>
-                                            </label>
+                                        <div class="sort-by-title" id="title-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="title-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            </div>
+                                            <span>Title</span>
                                         </div>
                                     </div>
                                 </div>
@@ -255,7 +253,6 @@ const filterCheckedList = () => {
         `;
         }
     });
-    updateTaskList();
 }
 
 const createOrRenameList = () => {
@@ -281,12 +278,15 @@ const createOrRenameList = () => {
 const deleteList = (deleteBtn) => {
     const listname = deleteBtn.id.slice(12).replace("-", " ");
     const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
+    const taskData = taskDataArr.filter(task => task.listName.toLowerCase() !== listname);
 
     document.getElementById(`task-card-${listname.replace(" ", "-")}`).remove();
     document.getElementById(`list-entry-${listname.replace(" ", "-")}`).remove();
 
     dataArr.splice(dataArrIndex, 1);
     localStorage.setItem("data", JSON.stringify(dataArr));
+    localStorage.setItem("tasks", JSON.stringify(taskData));
+
     updateSelectListOptions();
 }
 
@@ -347,11 +347,135 @@ const updateTaskList = () => {
 
     listnameArr.forEach(name => {
         const taskListContainer = document.getElementById(`task-list-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
-        taskListContainer.innerHTML = "";
         const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "no");
 
+        updateTaskListContainer(filteredArr, taskListContainer)
+    });
+}
+
+const resetTaskForm = () => {
+    taskTitle.value = "";
+    taskDate.value = "";
+    taskDescription.value = "";
+}
+
+const updateCompletedTasks = (el) => {
+    const taskEntryContainer = document.querySelector(`#task-list-entry-container-${el.id}`);
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id);
+
+    taskDataArr[dataArrIndex].completed = "yes";
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    taskEntryContainer.remove();
+    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
+
+
+    updateCompletedContainer();
+    updateListNames();
+}
+
+const updateCompletedContainer = () => {
+    const listnameArr = document.querySelectorAll("#task-list-name");
+
+    listnameArr.forEach(name => {
+        const completedTaskListContainer = document.getElementById(`completed-tasks-body-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
+        completedTaskListContainer.innerHTML = "";
+        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "yes");
+
         filteredArr.forEach(({ id, title, date, description, listName }) => {
-            taskListContainer.innerHTML += `
+            completedTaskListContainer.innerHTML += `
+                <div class="completed-tasks-entry" id="tasks-entry-completed-${id}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" id="completed-${id}" onclick="unmarkCompletedTask(this)" checked>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">${title}</span>
+                                <p id="task-entry-description">${description}</p>
+                            </div>
+                        </div>
+            `
+        });
+    });
+}
+
+const unmarkCompletedTask = (el) => {
+    const completedTaskEntry = document.getElementById(`tasks-entry-${el.id}`);
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id.slice(10));
+
+    taskDataArr[dataArrIndex].completed = "no";
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    completedTaskEntry.remove();
+    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
+
+    updateTaskList();
+    updateListNames();
+}
+
+const sortTasks = (el) => {
+    const sortByList = ["my-order", "date", "starred", "title"];
+
+    sortByList.forEach(item => {
+        if (el.id.includes(item)) {
+            const listname = el.id.slice(item.length + 1).replace("-", " ");
+            const arr = taskDataArr.filter(task => task.listName.toLowerCase() === listname && task.completed === "no");
+            sortedTaskList(arr, item, el.id.slice(item.length + 1));
+        }
+    })
+}
+
+const sortedTaskList = (arr, orderBy, name1) => {
+    const taskListContainer = document.getElementById(`task-list-${name1}`);
+    const checkmarkContainer = document.getElementById(`${orderBy}-checkmark-svg-${name1}`);
+    
+    
+
+    if (orderBy === "my-order") {
+         updateTaskListContainer(arr, taskListContainer);
+         addOrRemoveCheckmark(checkmarkContainer);
+    }
+    else if ( orderBy === "date") {
+        arr.sort((a, b) => new Date(a.date) - new Date(b.date));
+        updateTaskListContainer(arr, taskListContainer);
+        addOrRemoveCheckmark(checkmarkContainer);
+    }
+    else if (orderBy === "starred") {
+        alert("working on it");
+        addOrRemoveCheckmark(checkmarkContainer);
+    }
+    else if (orderBy === "title") {
+        arr.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+        updateTaskListContainer(arr, taskListContainer);
+        addOrRemoveCheckmark(checkmarkContainer);
+    }
+}
+
+const addOrRemoveCheckmark = (currentSortOption) => {
+    if (!currentSortOption) return;
+
+    const isChecked = currentSortOption.classList.contains("show");
+
+    
+    document.querySelectorAll(".checkmark-svg.show")
+        .forEach(container => container.classList.remove("show"));
+
+
+    if (!isChecked) {
+        currentSortOption.classList.add("show");
+    }
+    else {
+        currentSortOption.classList.add("show");
+    }
+}
+
+const updateTaskListContainer = (arr, container) => {
+    container.innerHTML = "";
+
+    arr.forEach(({ id, title, date, description, listName }) => {
+            container.innerHTML += `
                 <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
@@ -366,54 +490,4 @@ const updateTaskList = () => {
                         </div>
             `
         });
-    });
 }
-
-const resetTaskForm = () => {
-    taskTitle.value = "";
-    taskDate.value = "";
-    taskDescription.value = "";
-}
-
-const updateCompletedTasks = (el) => {
-    const taskEntryContainer = document.querySelector(`#task-list-entry-container-${el.id}`);
-    const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id);
-    
-    taskDataArr[dataArrIndex].completed = "yes";
-    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
-
-    taskEntryContainer.remove();
-    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName}`).textContent = numberOfCompletedTasks(taskDataArr[dataArrIndex].listName);
-
-    updateCompletedContainer();
-    updateListNames();
-}
-
-const updateCompletedContainer = () => {
-    const listnameArr = document.querySelectorAll("#task-list-name");
-    
-    listnameArr.forEach(name => {
-        const completedTaskListContainer = document.getElementById(`completed-tasks-body-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
-        completedTaskListContainer.innerHTML = "";
-        const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "yes");
-        
-        filteredArr.forEach(({ id, title, date, description, listName }) => {
-            console.log(id)
-            completedTaskListContainer.innerHTML += `
-                <div class="completed-tasks-entry" id="completed-tasks-entry-${id}">
-                            <div class="checkbox-container">
-                                <label class="container">
-                                    <input type="checkbox" id="completed-${id}" checked>
-                                    <span class="checkmark"></span>
-                                </label>
-                            </div>
-                            <div class="task-list-entry-info">
-                                <span id="task-entry-title">${title}</span>
-                                <p id="task-entry-description">${description}</p>
-                            </div>
-                        </div>
-            `
-        });
-    });
-}
-

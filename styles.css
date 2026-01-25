@@ -438,12 +438,6 @@ button svg:hover {
     cursor: pointer;
 }
 
-.container.options {
-    padding: 5px 110px 5px 30px;
-    margin: 5px 0;
-    width: 100%;
-}
-
 /* Hide the browser's default checkbox */
 .container input {
     position: absolute;
@@ -465,19 +459,9 @@ button svg:hover {
     z-index: 3;
 }
 
-.checkmark.my-order {
-    border: none;
-    
-}
-
 /* On mouse-over, add a grey background color */
 .container:hover input~.checkmark {
     background-color: var(--navbar-icons-hover-color);
-
-}
-
-.container:hover input~.checkmark.my-order {
-    background: none;
 
 }
 
@@ -485,10 +469,6 @@ button svg:hover {
 .container input:checked~.checkmark {
     background-color: #a8c7fa;
     border: none;
-}
-
-.container input:checked~.checkmark.my-order {
-    background: none;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
@@ -513,17 +493,6 @@ button svg:hover {
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
 }
-
-.container .checkmark.my-order:after {
-    left: 7px;
-    top: 5px;
-    width: 3px;
-    height: 10px;
-    border: solid #ccc;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
 
 .description-wrap {
     width: 100%;
@@ -653,6 +622,7 @@ button svg:hover {
 
 .completed-tasks {
     margin-left: 0px;
+    cursor: pointer;
 }
 
 .completed-tasks-entry {
@@ -704,7 +674,6 @@ button svg:hover {
     position: absolute;
     top: 30.2px;
     right: -2px;
-    padding: 8px 20px;
     background-color: #444746;
     border-radius: 5px;
     font-size: 0.85rem;
@@ -720,6 +689,36 @@ button svg:hover {
     display: inline-flex;
     flex-direction: column;
     width: 100%;
+    gap: 10px;
+}
+
+.sort-by-my-order, .sort-by-date, .sort-by-starred, .sort-by-title {
+    display: inline-flex;
+    
+}
+
+.sort-by-title {
+    margin-bottom: 10px;
+}
+
+.checkmark-svg {
+    width: 20px;
+    height: 20px;
+    padding: 8px 20px;
+}
+
+.checkmark-svg.show::after {
+    content: "ch";
+}
+
+.sort-section span,
+.list-edit-section span,
+.task-edit-section span {
+    padding: 8px 20px;
+}
+
+.sort-section span:first-child {
+    margin-top: 4px;
 }
 
 .sort-section {
@@ -729,9 +728,12 @@ button svg:hover {
     border-bottom: 1px solid #ccc;
 }
 
-.container.options:hover,
+.sort-by-my-order:hover,
+.sort-by-date:hover,
+.sort-by-starred:hover,
+.sort-by-title:hover,
 .list-edit-section span:hover,
- .task-edit-section span:hover{
+.task-edit-section span:hover{
     background-color: #37393b;
     cursor: pointer;
 }
@@ -742,11 +744,6 @@ button svg:hover {
     flex-direction: column;
     gap: 10px;
     border-bottom: 1px solid #ccc;
-}
-
-.list-edit-section span,
-.task-edit-section span {
-    padding: 5px;
 }
 
 .list-edit-section span:last-child,
