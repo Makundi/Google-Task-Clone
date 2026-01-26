@@ -69,6 +69,9 @@ createTaskFormCancel.addEventListener('click', () => {
 
 taskContainer.addEventListener("click", (e) => {
     const completedTaskBtn = e.target.closest(".completed-tasks");
+
+    if (!completedTaskBtn) return;
+
     completedTaskBtn.classList.toggle('active');
 
     //updateCompletedContainer();
@@ -81,6 +84,8 @@ createForm.addEventListener('submit', (event) => {
     updateListNames();
     updateSelectListOptions();
     filterCheckedList();
+    updateTaskList();
+    updateCompletedContainer();
 });
 
 taskContainer.addEventListener("click", (e) => {
@@ -118,6 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSelectListOptions();
     updateTaskList();
     updateCompletedContainer();
+    addDefaultList();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
@@ -129,6 +135,18 @@ taskFormLayout.addEventListener("submit", (e) => {
     taskFormLayout.style.display = "none";
     createListOverlay.style.display = "none";
 });
+
+const addDefaultList = () => {
+    if (dataArr.length === 0) {
+        const dataPoint = {};
+        dataPoint["listname"] = "My Tasks";
+        dataPoint["default"] = "yes";
+
+        dataArr.unshift(dataPoint);
+        localStorage.setItem("data", JSON.stringify(dataArr));
+
+    }
+}
 
 const countNumberofTasks = (nameOfList) => {
     let count = 0;
@@ -174,11 +192,13 @@ const filterCheckedList = () => {
                             <span id="task-list-name">${checkbox.value}</span>
                         </div>
                         <div class="task-card-menu-svg" data-menu="${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
-                            <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
+                            <div class="menu-svg">
+                                <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
                                 viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
                                 <path
                                     d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
                             </svg>
+                            </div>
                             <div class="dropdown-list-menu" id="${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                 <div class="sort-section">
                                     <span>Sort by</span>
@@ -260,11 +280,12 @@ const createOrRenameList = () => {
     const dataArrIndex = dataArr.findIndex(data => data["listname"] === currentTask.listname);
 
     dataPoint["listname"] = listNameInput.value;
+    dataPoint["default"] = "no";
 
     if (dataArrIndex === -1) {
         dataArr.unshift(dataPoint);
     } else {
-        dataArr[dataArrIndex] = dataPoint;
+        dataArr[dataArrIndex].listname = listNameInput.value;;
     }
 
     localStorage.setItem("data", JSON.stringify(dataArr));
@@ -278,6 +299,11 @@ const createOrRenameList = () => {
 const deleteList = (deleteBtn) => {
     const listname = deleteBtn.id.slice(12).replace("-", " ");
     const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
+
+    if (dataArr[dataArrIndex].default === "yes") {
+        alert("You can't delete a default List");
+        return;
+    }
     const taskData = taskDataArr.filter(task => task.listName.toLowerCase() !== listname);
 
     document.getElementById(`task-card-${listname.replace(" ", "-")}`).remove();
@@ -376,6 +402,12 @@ const updateCompletedTasks = (el) => {
 
 const updateCompletedContainer = () => {
     const listnameArr = document.querySelectorAll("#task-list-name");
+    const completedDate = new Date();
+    const options = {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+    };
 
     listnameArr.forEach(name => {
         const completedTaskListContainer = document.getElementById(`completed-tasks-body-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
@@ -394,6 +426,7 @@ const updateCompletedContainer = () => {
                             <div class="task-list-entry-info">
                                 <span id="task-entry-title">${title}</span>
                                 <p id="task-entry-description">${description}</p>
+                                <p>Completed: ${completedDate.toLocaleDateString("en-US", options)}</p>
                             </div>
                         </div>
             `
@@ -430,14 +463,14 @@ const sortTasks = (el) => {
 const sortedTaskList = (arr, orderBy, name1) => {
     const taskListContainer = document.getElementById(`task-list-${name1}`);
     const checkmarkContainer = document.getElementById(`${orderBy}-checkmark-svg-${name1}`);
-    
-    
+
+
 
     if (orderBy === "my-order") {
-         updateTaskListContainer(arr, taskListContainer);
-         addOrRemoveCheckmark(checkmarkContainer);
+        updateTaskListContainer(arr, taskListContainer);
+        addOrRemoveCheckmark(checkmarkContainer);
     }
-    else if ( orderBy === "date") {
+    else if (orderBy === "date") {
         arr.sort((a, b) => new Date(a.date) - new Date(b.date));
         updateTaskListContainer(arr, taskListContainer);
         addOrRemoveCheckmark(checkmarkContainer);
@@ -458,7 +491,7 @@ const addOrRemoveCheckmark = (currentSortOption) => {
 
     const isChecked = currentSortOption.classList.contains("show");
 
-    
+
     document.querySelectorAll(".checkmark-svg.show")
         .forEach(container => container.classList.remove("show"));
 
@@ -475,7 +508,7 @@ const updateTaskListContainer = (arr, container) => {
     container.innerHTML = "";
 
     arr.forEach(({ id, title, date, description, listName }) => {
-            container.innerHTML += `
+        container.innerHTML += `
                 <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
@@ -489,5 +522,5 @@ const updateTaskListContainer = (arr, container) => {
                             </div>
                         </div>
             `
-        });
+    });
 }
