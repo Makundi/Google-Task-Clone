@@ -237,7 +237,7 @@ const filterCheckedList = () => {
 
                         </div>
                     </div>
-                    <div class="add-new-task-row">
+                    <div class="add-new-task-row" id="add-new-task-row-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="toggleNewTaskForm(this)">
                         <div class="new-task-icon">
                             <svg id="add-new-task-icon" xmlns="http://www.w3.org/2000/svg" height="20px"
                             viewBox="0 -960 960 960" width="20px" fill="#a8c7fa">
@@ -252,6 +252,25 @@ const filterCheckedList = () => {
                 </div>
                 <div class="task-card-body">
                     <div class="task-list" id="task-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                        <div class="task-list-entry-container add-task-mini-form" id="new-form-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info new-task-form">
+                                <form>
+                                    <input type="text" id="new-task-form-title" placeholder="Title">
+                                    <input type="text" id="new-task-form-description" placeholder="Details">
+                                    <input type="date" id="new-task-form-date">
+                                    <div class="button-layout new-task-layout">
+                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
+                                        <button id="create-new-task-save-btn" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         
                     </div>
                     <div class="completed-tasks">
@@ -273,6 +292,12 @@ const filterCheckedList = () => {
         `;
         }
     });
+}
+
+const toggleNewTaskForm = (el) => {
+    const name1 = el.id.slice(17);
+    const newForm1 = document.getElementById(`new-form-${name1}`);
+    console.log(newForm1.id);
 }
 
 const createOrRenameList = () => {

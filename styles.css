@@ -629,8 +629,12 @@ button svg:hover {
     padding: 10px 0;
 }
 
-.task-list-entry-container:hover, .add-new-task-row:hover {
+.add-new-task-row:hover {
     background-color: rgb(194 231 255 / 8%);
+}
+
+.task-list-entry-container:hover {
+    background-color: #202225;
 }
 
 .completed-tasks-body {
@@ -696,10 +700,10 @@ button svg:hover {
     padding: 8px;
 }
 
-.menu-svg svg{
+.menu-svg svg {
     width: 20px;
     height: 20px;
-   vertical-align: middle;
+    vertical-align: middle;
 }
 
 .menu-svg:hover {
@@ -734,9 +738,12 @@ button svg:hover {
     gap: 10px;
 }
 
-.sort-by-my-order, .sort-by-date, .sort-by-starred, .sort-by-title {
+.sort-by-my-order,
+.sort-by-date,
+.sort-by-starred,
+.sort-by-title {
     display: inline-flex;
-    
+
 }
 
 .sort-by-title {
@@ -775,7 +782,7 @@ button svg:hover {
 .sort-by-starred:hover,
 .sort-by-title:hover,
 .list-edit-section span:hover,
-.task-edit-section span:hover{
+.task-edit-section span:hover {
     background-color: #37393b;
     cursor: pointer;
 }
@@ -800,7 +807,54 @@ button svg:hover {
     gap: 10px;
 }
 
+.task-list-entry-container.add-task-mini-form {
+    background-color: #202225;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+}
 
+.task-list-entry-container.add-task-mini-form.show {
+    max-height: 200px;
+}
+
+.task-list-entry-info.new-task-form {
+    width: 100%;
+}
+
+.task-list-entry-info.new-task-form form {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+
+.button-layout.new-task-layout {
+    margin-bottom: 0;
+}
+
+#new-task-form-title,
+#new-task-form-description,
+#new-task-form-date {
+    color: var(--primary-text-color);
+    padding: 0px;
+    margin: 8px 0;
+    display: inline-block;
+    border-radius: 4px;
+    box-sizing: border-box;
+    appearance: none;
+    border: none;
+    border-radius: 3px;
+    background: none;
+}
+
+#new-task-form-title:focus-visible,
+#new-task-form-description:focus-visible,
+#new-task-form-date:focus-visible {
+    outline: none;
+    border-bottom: 1px solid #a8c7fa;
+}
 
 @keyframes fade {
     from {

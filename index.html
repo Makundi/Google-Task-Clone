@@ -101,7 +101,7 @@
     </aside>
     <main>
         <div class="tasks-container">
-         <!--   <div class="task-card">
+            <div class="task-card">
                 <div class="task-card-header">
                     <div class="task-card-nav">
                         <div class="tasklistname">
@@ -110,10 +110,10 @@
                         <div class="task-card-menu-svg">
                             <div class="menu-svg">
                                 <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="20px"
-                                viewBox="0 -960 960 960" width="17px" fill="#FFFFFF">
-                                <path
-                                    d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
-                            </svg>
+                                    viewBox="0 -960 960 960" width="17px" fill="#FFFFFF">
+                                    <path
+                                        d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                                </svg>
                             </div>
                             <div class="dropdown-list-menu">
                                 <div class="sort-section">
@@ -122,17 +122,17 @@
                                         <div class="sort-by-my-order">
                                             <div class="checkmark-svg">
                                             </div>
-                                           <span>My order</span>
+                                            <span>My order</span>
                                         </div>
                                         <div class="sort-by-date">
                                             <div class="checkmark-svg">
                                             </div>
-                                            <span>Date</span>               
+                                            <span>Date</span>
                                         </div>
                                         <div class="sort-by-starred">
                                             <div class="checkmark-svg">
                                             </div>
-                                           <span>Starred recently</span>
+                                            <span>Starred recently</span>
                                         </div>
                                         <div class="sort-by-title">
                                             <div class="checkmark-svg">
@@ -167,6 +167,37 @@
                 </div>
                 <div class="task-card-body">
                     <div class="task-list">
+                        <div class="task-list-entry-container add-task-mini-form">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info new-task-form">
+                                <form>
+                                    <input type="text" id="new-task-form-title" placeholder="Title">
+                                    <input type="text" id="new-task-form-description" placeholder="Details">
+                                    <input type="date" id="new-task-form-date">
+                                    <div class="button-layout new-task-layout">
+                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
+                                        <button id="create-new-task-save-btn" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="task-list-entry-container">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info">
+                                <span id="task-entry-title">Coding</span>
+                                <p id="task-entry-description">I need to code some components</p>
+                            </div>
+                        </div>
                         <div class="task-list-entry-container">
                             <div class="checkbox-container">
                                 <label class="container">
@@ -203,7 +234,7 @@
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
 
         </div>
 
