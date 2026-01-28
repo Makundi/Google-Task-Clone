@@ -118,18 +118,18 @@ document.addEventListener("click", (e) => {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+    addDefaultList();
     updateListNames();
     filterCheckedList();
     updateSelectListOptions();
     updateTaskList();
     updateCompletedContainer();
-    addDefaultList();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    addTask();
+    addTask(taskTitle.value, taskDate.value, taskDescription.value, selectContainer.value);
     updateListNames();
 
     taskFormLayout.style.display = "none";
@@ -137,7 +137,7 @@ taskFormLayout.addEventListener("submit", (e) => {
 });
 
 const addDefaultList = () => {
-    if (dataArr.length === 0) {
+    if (dataArr.length === 0 || typeof (dataArr) === null) {
         const dataPoint = {};
         dataPoint["listname"] = "My Tasks";
         dataPoint["default"] = "yes";
@@ -255,15 +255,15 @@ const filterCheckedList = () => {
                         <div class="task-list-entry-container add-task-mini-form" id="new-form-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                             <div class="checkbox-container">
                                 <label class="container">
-                                    <input type="checkbox" checked="checked">
+                                    <input type="checkbox">
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
                             <div class="task-list-entry-info new-task-form">
-                                <form>
-                                    <input type="text" id="new-task-form-title" placeholder="Title">
-                                    <input type="text" id="new-task-form-description" placeholder="Details">
-                                    <input type="date" id="new-task-form-date">
+                                <form id="new-task-form-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                    <input type="text" class="new-task-form-title" id="new-task-form-title-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" placeholder="Title" required>
+                                    <input type="text" class="new-task-form-description" id="new-task-form-description-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" placeholder="Details">
+                                    <input type="date" class="new-task-form-date" id="new-task-form-date-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                     <div class="button-layout new-task-layout">
                                         <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
                                         <button id="create-new-task-save-btn" type="submit">Save</button>
@@ -297,7 +297,7 @@ const filterCheckedList = () => {
 const toggleNewTaskForm = (el) => {
     const name1 = el.id.slice(17);
     const newForm1 = document.getElementById(`new-form-${name1}`);
-    console.log(newForm1.id);
+    newForm1.classList.toggle("show")
 }
 
 const createOrRenameList = () => {
@@ -324,6 +324,7 @@ const createOrRenameList = () => {
 const deleteList = (deleteBtn) => {
     const listname = deleteBtn.id.slice(12).replace("-", " ");
     const dataArrIndex = dataArr.findIndex(data => data["listname"].toLowerCase() === listname);
+
 
     if (dataArr[dataArrIndex].default === "yes") {
         alert("You can't delete a default List");
@@ -370,15 +371,15 @@ const removeSpecialChars = (val) => {
     return val.trim().replace(/[^A-Za-z0-9\-\s]/g, '')
 }
 
-const addTask = () => {
+const addTask = (taskTitle, taskDate, taskDescription, listname) => {
     const dataArrIndex = taskDataArr.findIndex(data => data.id === currentTask2.id);
 
     const taskObj = {
-        id: `${removeSpecialChars(taskTitle.value).toLowerCase().split(" ").join("-")}-${Date.now()}`,
-        title: taskTitle.value,
-        date: taskDate.value,
-        description: taskDescription.value,
-        listName: selectContainer.value,
+        id: `${removeSpecialChars(taskTitle).toLowerCase().split(" ").join("-")}-${Date.now()}`,
+        title: taskTitle,
+        date: taskDate,
+        description: taskDescription,
+        listName: listname,
         completed: "no",
     };
 
@@ -396,9 +397,13 @@ const addTask = () => {
 const updateTaskList = () => {
     const listnameArr = document.querySelectorAll("#task-list-name");
 
+    if (taskDataArr.length === 0) return;
+
     listnameArr.forEach(name => {
         const taskListContainer = document.getElementById(`task-list-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
         const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "no");
+
+        if (filteredArr.length === 0) return;
 
         updateTaskListContainer(filteredArr, taskListContainer)
     });
@@ -426,6 +431,9 @@ const updateCompletedTasks = (el) => {
 }
 
 const updateCompletedContainer = () => {
+
+    if (taskDataArr.length === 0) return;
+
     const listnameArr = document.querySelectorAll("#task-list-name");
     const completedDate = new Date();
     const options = {
@@ -438,6 +446,8 @@ const updateCompletedContainer = () => {
         const completedTaskListContainer = document.getElementById(`completed-tasks-body-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
         completedTaskListContainer.innerHTML = "";
         const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "yes");
+
+        if (filteredArr.length === 0) return;
 
         filteredArr.forEach(({ id, title, date, description, listName }) => {
             completedTaskListContainer.innerHTML += `
@@ -534,6 +544,25 @@ const updateTaskListContainer = (arr, container) => {
 
     arr.forEach(({ id, title, date, description, listName }) => {
         container.innerHTML += `
+                <div class="task-list-entry-container add-task-mini-form" id="new-form-${listName.trim().replace(" ", "-").toLowerCase()}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info new-task-form">
+                                <form id="new-task-form-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                    <input type="text" class="new-task-form-title" id="new-task-form-title-${listName.trim().replace(" ", "-").toLowerCase()}" placeholder="Title" required>
+                                    <input type="text" class="new-task-form-description" id="new-task-form-description-${listName.trim().replace(" ", "-").toLowerCase()}" placeholder="Details">
+                                    <input type="date" class="new-task-form-date" id="new-task-form-date-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                    <div class="button-layout new-task-layout">
+                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
+                                        <button id="create-new-task-save-btn" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                 <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
@@ -549,3 +578,27 @@ const updateTaskListContainer = (arr, container) => {
             `
     });
 }
+
+taskContainer.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const entry = e.target.closest(".task-list-entry-container.add-task-mini-form");
+
+    if (!entry) return;
+
+    const listName = entry.id.slice(9);
+    const title = document.getElementById(`new-task-form-title-${listName}`);
+    const description = document.getElementById(`new-task-form-description-${listName}`);
+    const date = document.getElementById(`new-task-form-date-${listName}`);
+
+
+    const index = dataArr.findIndex(data => data.listname.toLowerCase() === listName.replace("-", " "));
+    const realName = dataArr[index].listname;
+    addTask(title.value, date.value, description.value, realName);
+
+    title.value = "";
+    description.value = "";
+    date.value = "";
+    toggleNewTaskForm();
+    updateTaskList();
+
+});

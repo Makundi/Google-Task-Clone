@@ -814,10 +814,13 @@ button svg:hover {
     padding: 0 !important;
     margin: 0 !important;
     border: 0 !important;
+    transition: max-height 0.5s ease-in-out;
 }
 
 .task-list-entry-container.add-task-mini-form.show {
     max-height: 200px;
+    padding: 10px;
+    margin: 10px;
 }
 
 .task-list-entry-info.new-task-form {
@@ -834,9 +837,9 @@ button svg:hover {
     margin-bottom: 0;
 }
 
-#new-task-form-title,
-#new-task-form-description,
-#new-task-form-date {
+.new-task-form-title,
+.new-task-form-description,
+.new-task-form-date {
     color: var(--primary-text-color);
     padding: 0px;
     margin: 8px 0;
@@ -849,9 +852,9 @@ button svg:hover {
     background: none;
 }
 
-#new-task-form-title:focus-visible,
-#new-task-form-description:focus-visible,
-#new-task-form-date:focus-visible {
+.new-task-form-title:focus-visible,
+.new-task-form-description:focus-visible,
+.new-task-form-date:focus-visible {
     outline: none;
     border-bottom: 1px solid #a8c7fa;
 }
