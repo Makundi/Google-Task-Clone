@@ -30,7 +30,7 @@ const saveTaskBtn = document.getElementById("save-task-btn1");
 
 
 menuIcon.addEventListener('click', () => {
-    sideBar.classList.toggle('show-sidebar');
+    sideBar.classList.toggle('hide-sidebar');
 });
 
 listMenu.addEventListener('click', () => {
@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSelectListOptions();
     updateTaskList();
     updateCompletedContainer();
+    addStarredVisibility();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
@@ -296,6 +297,9 @@ const filterCheckedList = () => {
 
 const toggleNewTaskForm = (el) => {
     const name1 = el.id.slice(17);
+
+    if (!name1) return;
+
     const newForm1 = document.getElementById(`new-form-${name1}`);
     newForm1.classList.toggle("show")
 }
@@ -381,6 +385,7 @@ const addTask = (taskTitle, taskDate, taskDescription, listname) => {
         description: taskDescription,
         listName: listname,
         completed: "no",
+        starred: "no",
     };
 
     if (dataArrIndex === -1) {
@@ -449,7 +454,7 @@ const updateCompletedContainer = () => {
 
         if (filteredArr.length === 0) return;
 
-        filteredArr.forEach(({ id, title, date, description, listName }) => {
+        filteredArr.forEach(({ id, title, date, description, listName, starred }) => {
             completedTaskListContainer.innerHTML += `
                 <div class="completed-tasks-entry" id="tasks-entry-completed-${id}">
                             <div class="checkbox-container">
@@ -463,10 +468,41 @@ const updateCompletedContainer = () => {
                                 <p id="task-entry-description">${description}</p>
                                 <p>Completed: ${completedDate.toLocaleDateString("en-US", options)}</p>
                             </div>
+                            <div class="task-options">
+
+                                <div class="task-option-delete-svg-container" id="delete-task-${id}" onclick="deleteTask(this, 'deleteCompleted')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                        width="20px" fill="#FFFFFF">
+                                        <path
+                                            d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
             `
         });
     });
+}
+
+const deleteTask = (deleteIcon, action) => {
+    const id = deleteIcon.id.slice(12);
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === id);
+    const listname = taskDataArr[dataArrIndex].listName;
+
+    taskDataArr.splice(dataArrIndex, 1);
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    if (action === "deleteCompleted") {
+         document.getElementById(`tasks-entry-completed-${id}`).remove();
+    }
+    else{
+        document.getElementById(`task-list-entry-container-${id}`).remove();
+    }
+   
+    document.getElementById(`number-of-completed-task-${listname.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(listname)})`;
+    updateCompletedContainer();
+    updateTaskList();
+    updateListNames();
 }
 
 const unmarkCompletedTask = (el) => {
@@ -542,7 +578,7 @@ const addOrRemoveCheckmark = (currentSortOption) => {
 const updateTaskListContainer = (arr, container) => {
     container.innerHTML = "";
 
-    arr.forEach(({ id, title, date, description, listName }) => {
+    arr.forEach(({ id, title, date, description, listName, starred }) => {
         container.innerHTML += `
                 <div class="task-list-entry-container add-task-mini-form" id="new-form-${listName.trim().replace(" ", "-").toLowerCase()}">
                             <div class="checkbox-container">
@@ -574,9 +610,52 @@ const updateTaskListContainer = (arr, container) => {
                                 <span id="task-entry-title">${title}</span>
                                 <p id="task-entry-description">${description}</p>
                             </div>
+                            <div class="task-options">
+
+                                <div class="task-option-delete-svg-container" id="task-option-${id}" onclick="deleteTask(this, 'deleteTask')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                        width="20px" fill="#FFFFFF">
+                                        <path
+                                            d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
+                                    </svg>
+                                </div>
+
+                                <div class="task-option-starred-svg-container${starred === 'yes'? ' starred':''}" id="starred-option-${id}" onclick="starTask(this)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                        width="20px" fill="#FFFFFF">
+                                        <path
+                                            d="m352-293 128-76 129 76-34-144 111-95-147-13-59-137-59 137-147 13 112 95-34 144ZM243-144l63-266L96-589l276-24 108-251 108 252 276 23-210 179 63 266-237-141-237 141Zm237-333Z" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
             `
     });
+}
+
+const starTask = (el) => {
+    const id = el.id.slice(15);
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === id);
+
+    if (taskDataArr[dataArrIndex].starred === "no") {
+        taskDataArr[dataArrIndex].starred = "yes";
+        el.style.backgroundColor = "blue";
+    }
+    else {
+        taskDataArr[dataArrIndex].starred = "no";
+        el.style.backgroundColor = "green";
+    }
+
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+}
+
+const addStarredVisibility = () => {
+    const starredElement = document.querySelectorAll(".starred")
+
+    starredElement.forEach(el => {
+        el.style.backgroundColor = "blue";
+    })
 }
 
 taskContainer.addEventListener("submit", (e) => {
@@ -598,7 +677,8 @@ taskContainer.addEventListener("submit", (e) => {
     title.value = "";
     description.value = "";
     date.value = "";
-    toggleNewTaskForm();
-    updateTaskList();
 
+    updateListNames();
+    updateTaskList();
+    toggleNewTaskForm();
 });

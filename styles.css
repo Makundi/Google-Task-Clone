@@ -132,12 +132,12 @@ header img {
     margin-top: 20px;
     margin-left: 14px;
     position: relative;
-    left: -100%;
+    left: 0;
     transition: .5s ease-in-out;
 }
 
-.show-sidebar {
-    left: 0;
+.hide-sidebar {
+    left: -100%;
 }
 
 .create-btn-container button {
@@ -633,7 +633,7 @@ button svg:hover {
     background-color: rgb(194 231 255 / 8%);
 }
 
-.task-list-entry-container:hover {
+.task-list-entry-container:hover, .completed-tasks-entry:hover {
     background-color: #202225;
 }
 
@@ -655,16 +655,15 @@ button svg:hover {
 
 .completed-tasks {
     margin-left: 0px;
-    cursor: pointer;
 }
 
 .completed-tasks-entry {
-    max-height: 0;
     overflow: hidden;
     transition: max-height 0.1s ease;
-    display: flex;
+    display: none;
     justify-content: flex-start;
     gap: 20px;
+    padding: 10px 0;
 }
 
 .task-icon-right {
@@ -676,7 +675,7 @@ button svg:hover {
 }
 
 .completed-tasks.active .completed-tasks-entry {
-    max-height: 300px;
+    display: inline-flex;
     animation: fade 0.1s ease-in-out;
 }
 
@@ -857,6 +856,33 @@ button svg:hover {
 .new-task-form-date:focus-visible {
     outline: none;
     border-bottom: 1px solid #a8c7fa;
+}
+
+.task-options {
+    width: 60px;
+    display: none;
+    justify-content: space-between;
+    margin-left: auto;
+    margin-right: 10px;
+    
+}
+
+.task-option-delete-svg-container, .task-option-starred-svg-container {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.task-list-entry-container:hover .task-options, .completed-tasks-entry:hover .task-options {
+   display: flex; 
+}
+
+.task-option-delete-svg-container:hover, .task-option-starred-svg-container:hover {
+    background-color: #37393b;
 }
 
 @keyframes fade {
