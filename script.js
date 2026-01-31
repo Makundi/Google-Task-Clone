@@ -3,6 +3,7 @@ const taskDataArr = JSON.parse(localStorage.getItem("tasks")) || [];
 
 let currentTask = {};
 let currentTask2 = {};
+const listnamesArr = [];
 
 const menuIcon = document.getElementById("menu-icon");
 const sideBar = document.querySelector(".sidebar");
@@ -39,8 +40,7 @@ listMenu.addEventListener('click', () => {
 });
 
 createListBtn.addEventListener('click', () => {
-    createListForm.style.display = "block";
-    createListOverlay.style.display = "block";
+    displayCreateListForm();
 });
 
 createListCancelBtn.addEventListener('click', () => {
@@ -86,6 +86,7 @@ createForm.addEventListener('submit', (event) => {
     filterCheckedList();
     updateTaskList();
     updateCompletedContainer();
+    moveTaskToNewListOptions();
 });
 
 taskContainer.addEventListener("click", (e) => {
@@ -125,6 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTaskList();
     updateCompletedContainer();
     addStarredVisibility();
+    moveTaskToNewListOptions();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
@@ -308,11 +310,12 @@ const createOrRenameList = () => {
     const dataPoint = {}
     const dataArrIndex = dataArr.findIndex(data => data["listname"] === currentTask.listname);
 
+    listnamesArr.push(listNameInput.value)
     dataPoint["listname"] = listNameInput.value;
     dataPoint["default"] = "no";
 
     if (dataArrIndex === -1) {
-        dataArr.unshift(dataPoint);
+        dataArr.push(dataPoint);
     } else {
         dataArr[dataArrIndex].listname = listNameInput.value;;
     }
@@ -493,12 +496,12 @@ const deleteTask = (deleteIcon, action) => {
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
 
     if (action === "deleteCompleted") {
-         document.getElementById(`tasks-entry-completed-${id}`).remove();
+        document.getElementById(`tasks-entry-completed-${id}`).remove();
     }
-    else{
+    else {
         document.getElementById(`task-list-entry-container-${id}`).remove();
     }
-   
+
     document.getElementById(`number-of-completed-task-${listname.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(listname)})`;
     updateCompletedContainer();
     updateTaskList();
@@ -602,7 +605,7 @@ const updateTaskListContainer = (arr, container) => {
                 <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
-                                    <input type="checkbox" id="${id}" onclick="updateCompletedTasks(this)">
+                                    <input type="checkbox" id="${id}" onclick="updateCompletedTasks(this, 'deleteuncompleted')">
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
@@ -612,15 +615,49 @@ const updateTaskListContainer = (arr, container) => {
                             </div>
                             <div class="task-options">
 
-                                <div class="task-option-delete-svg-container" id="task-option-${id}" onclick="deleteTask(this, 'deleteTask')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                        width="20px" fill="#FFFFFF">
-                                        <path
-                                            d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
-                                    </svg>
+                                <div class="task-options-menu-container">
+                                    <div class="task-option-delete-svg-container" data-menu="${id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                            width="17px" fill="#FFFFFF">
+                                            <path
+                                                d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="task-options-menu-dropdown" id="task-options-menu-dropdown-${id}">
+                                        <div class="delete-task-section" id="option-task-${id}" onclick="deleteTask(this,)">
+                                            <div class="delete-task-section-svg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="20px"
+                                                    viewBox="0 -960 960 960" width="20px" fill="#FFFFFF">
+                                                    <path
+                                                        d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
+                                                </svg>
+                                            </div>
+                                            <span>Delete</span>
+                                        </div>
+                                        <div class="task-options-list-section" id="task-options-list-section-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="task-options-list-name-entry">
+                                                <div class="checkmark-svg show svg-options">
+                                                </div>
+                                                <span>${listName}</span>
+                                            </div>
+                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                                
+                                            </div>
+                                            <div class="task-options-new-list" id="task-option-new-list-${id}" onclick="moveTaskToNewList(this)">
+                                                <div class="new-list-svg">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px"
+                                                        viewBox="0 -960 960 960" width="20px" fill="#FFFFFF">
+                                                        <path
+                                                            d="M684-48v-108H576v-72h108v-108h72v108h108v72H756v108h-72ZM216-216v-528 528Zm.37 72Q186-144 165-165.15 144-186.3 144-216v-528q0-29.7 21.15-50.85Q186.3-816 216-816h528q29.7 0 50.85 21.15Q816-773.7 816-744v333q-17-8-35-12.5t-37-6.5v-314H216v528h266q-2 18-1 36t5 36H216.37Zm107.42-144q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5Zm0-156q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5Zm0-156q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5ZM432-444h240v-72H432v72Zm0-156h240v-72H432v72Zm0 312h68q9-20 21.5-38t27.5-34H432v72Z" />
+                                                    </svg>
+                                                </div>
+                                                <span>New list</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="task-option-starred-svg-container${starred === 'yes'? ' starred':''}" id="starred-option-${id}" onclick="starTask(this)">
+                                <div class="task-option-starred-svg-container${starred === 'yes' ? ' starred' : ''}" id="starred-option-${id}" onclick="starTask(this)">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
                                         width="20px" fill="#FFFFFF">
                                         <path
@@ -631,7 +668,100 @@ const updateTaskListContainer = (arr, container) => {
                         </div>
             `
     });
+    addStarredVisibility();
+    moveTaskToNewListOptions();
 }
+
+const moveTaskToNewListOptions = () => {
+    const listnameArr = dataArr.map(data => data.listname);
+
+    listnameArr.forEach(name => {
+        const otherEntriesContainer = document.getElementById(`task-options-list-name-other-entries-${name.trim().replace(" ", "-").toLowerCase()}`);
+        const newArr = listnameArr.filter(name1 => name1 !== name);
+
+        if(!otherEntriesContainer) return;
+
+        otherEntriesContainer.innerHTML = "";
+
+        newArr.forEach(liname => {
+            otherEntriesContainer.innerHTML += `
+                <div class="task-options-list-name-entry">
+                <div class="checkmark-svg svg-options">
+                </div>
+                <span>${liname}</span>
+            `;
+        });
+    });
+}
+
+/* const moveTaskToNewList = (element) => {
+    displayCreateListForm();
+
+    const taskId = element.id.slice(element.className.length);
+    const taskIndex = taskDataArr.findIndex(task => task.id === taskId);
+    console.log(listnamesArr[0]);
+    
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    updateTaskList();
+
+} */
+
+const displayCreateListForm = () => {
+    createListForm.style.display = "block";
+    createListOverlay.style.display = "block";
+}
+
+taskContainer.addEventListener("click", (e) => {
+    const menuBtn = e.target.closest(".task-option-delete-svg-container");
+    if (!menuBtn) return;
+
+    const menuId = menuBtn.dataset.menu;
+    const currentMenu = document.getElementById(`task-options-menu-dropdown-${menuId}`);
+    const taskEntry = document.getElementById(`task-list-entry-container-${menuId}`)
+    const starredOption = document.getElementById(`starred-option-${menuId}`);
+    if (!currentMenu) return;
+
+    const isOpen = currentMenu.classList.contains("show-task-options");
+
+    // Close all menus
+    document.querySelectorAll(".task-options-menu-dropdown.show-task-options")
+        .forEach(menu => { menu.classList.remove("show-task-options"); });
+
+    document.querySelectorAll(".task-list-entry-container.selected")
+        .forEach(menu => { menu.classList.remove("selected"); });
+
+    document.querySelectorAll(".task-option-delete-svg-container")
+        .forEach(menu => { menu.classList.remove("clicked"); });
+    document.querySelectorAll(".task-option-starred-svg-container")
+        .forEach(menu => { menu.classList.remove("show"); });
+
+    // Re-open only if it was previously closed
+    if (!isOpen) {
+        currentMenu.classList.add("show-task-options");
+        taskEntry.classList.add("selected");
+        menuBtn.classList.add("clicked");
+        starredOption.classList.add("show");
+    }
+
+});
+
+
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".task-option-delete-svg-container")) {
+        document.querySelectorAll(".task-options-menu-dropdown.show-task-options")
+            .forEach(menu => menu.classList.remove("show-task-options"));
+
+        document.querySelectorAll(".task-list-entry-container.selected")
+            .forEach(menu => { menu.classList.remove("selected"); });
+
+        document.querySelectorAll(".task-option-delete-svg-container")
+            .forEach(menu => { menu.classList.remove("clicked"); });
+
+        document.querySelectorAll(".task-option-starred-svg-container")
+            .forEach(menu => { menu.classList.remove("show"); });
+    }
+});
 
 const starTask = (el) => {
     const id = el.id.slice(15);
@@ -640,21 +770,26 @@ const starTask = (el) => {
     if (taskDataArr[dataArrIndex].starred === "no") {
         taskDataArr[dataArrIndex].starred = "yes";
         el.style.backgroundColor = "blue";
+        el.style.visibility = "visible";
     }
     else {
         taskDataArr[dataArrIndex].starred = "no";
-        el.style.backgroundColor = "green";
+        el.style.visibility = "hidden";
+        updateTaskList();
     }
 
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
-
+    //addStarredVisibility();
 }
 
 const addStarredVisibility = () => {
     const starredElement = document.querySelectorAll(".starred")
 
+    if (!starredElement) return;
+
     starredElement.forEach(el => {
         el.style.backgroundColor = "blue";
+        el.style.visibility = "visible";
     })
 }
 

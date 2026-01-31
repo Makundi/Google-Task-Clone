@@ -637,6 +637,10 @@ button svg:hover {
     background-color: #202225;
 }
 
+.task-list-entry-container.selected {
+    background-color: #202225;
+}
+
 .completed-tasks-body {
     margin-top: 10px;
     margin-bottom: 30px;
@@ -756,7 +760,7 @@ button svg:hover {
 }
 
 .checkmark-svg.show::after {
-    content: "ch";
+    content: "✔";
 }
 
 .sort-section span,
@@ -860,11 +864,11 @@ button svg:hover {
 
 .task-options {
     width: 60px;
-    display: none;
+    display: flex;
     justify-content: space-between;
     margin-left: auto;
     margin-right: 10px;
-    
+    position: relative;
 }
 
 .task-option-delete-svg-container, .task-option-starred-svg-container {
@@ -875,14 +879,98 @@ button svg:hover {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    visibility: hidden;
 }
 
-.task-list-entry-container:hover .task-options, .completed-tasks-entry:hover .task-options {
-   display: flex; 
+.task-option-delete-svg-container.clicked, .task-option-starred-svg-container.show {
+    visibility: visible;
+}
+
+.task-list-entry-container:hover .task-options .task-option-delete-svg-container, 
+.completed-tasks-entry:hover .task-options .task-option-delete-svg-container,
+.task-list-entry-container:hover .task-options .task-option-starred-svg-container
+{
+   visibility: visible;
 }
 
 .task-option-delete-svg-container:hover, .task-option-starred-svg-container:hover {
     background-color: #37393b;
+}
+
+.task-options-menu-dropdown {
+    position: absolute;
+    width: 150px;
+    display: none;
+    flex-direction: column;
+    background-color: #444746;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 200;
+    right: 30px;
+    z-index: 3;
+    cursor: pointer;
+    gap: 10px;
+}
+
+.task-options-menu-dropdown.show-task-options {
+    display: flex;
+}
+
+.delete-task-section {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #fff;
+    margin-top: 5px;
+}
+
+.delete-task-section .delete-task-section-svg {
+    margin: 5px 0 5px 10px;
+}
+
+.delete-task-section span {
+   margin: 5px 0 5px 5px
+}
+
+.delete-task-section:hover, .task-options-list-name-entry:hover, .task-options-new-list:hover {
+    background-color: #37393b;
+}
+
+.task-options-list-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.task-options-list-section .task-options-list-name-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkmark-svg.svg-options {
+    padding: 0;
+    margin: 5px 0 0 10px;
+}
+
+.task-options-list-name-entry span {
+    margin-left: 5px;
+}
+
+.task-options-new-list {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.task-options-new-list .new-list-svg {
+    margin: 5px 0 0 10px;
+}
+
+.task-options-new-list span {
+    margin: 5px 0 0 5px;
 }
 
 @keyframes fade {
