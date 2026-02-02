@@ -3,7 +3,7 @@ const taskDataArr = JSON.parse(localStorage.getItem("tasks")) || [];
 
 let currentTask = {};
 let currentTask2 = {};
-const listnamesArr = [];
+let taskToMove = [];
 
 const menuIcon = document.getElementById("menu-icon");
 const sideBar = document.querySelector(".sidebar");
@@ -55,8 +55,7 @@ createListOverlay.addEventListener('click', () => {
 });
 
 createTaskBtn.addEventListener('click', () => {
-    taskFormLayout.style.display = "flex";
-    createListOverlay.style.display = "block";
+    displayCreateTaskForm();
 });
 
 createTaskFormCancel.addEventListener('click', () => {
@@ -80,6 +79,12 @@ taskContainer.addEventListener("click", (e) => {
 createForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
+    if (taskToMove.length !== 0) {
+       const index = taskDataArr.findIndex(task => task.id === taskToMove[0].id);
+
+       taskDataArr[index].listName = listNameInput.value;
+       localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+    }
     createOrRenameList();
     updateListNames();
     updateSelectListOptions();
@@ -87,6 +92,7 @@ createForm.addEventListener('submit', (event) => {
     updateTaskList();
     updateCompletedContainer();
     moveTaskToNewListOptions();
+    taskToMove.splice(0);
 });
 
 taskContainer.addEventListener("click", (e) => {
@@ -310,7 +316,6 @@ const createOrRenameList = () => {
     const dataPoint = {}
     const dataArrIndex = dataArr.findIndex(data => data["listname"] === currentTask.listname);
 
-    listnamesArr.push(listNameInput.value)
     dataPoint["listname"] = listNameInput.value;
     dataPoint["default"] = "no";
 
@@ -355,11 +360,8 @@ const renameList = (renameBtn) => {
 
     currentTask = dataArr[dataArrIndex];
 
-    console.log(currentTask);
-
     listNameInput.value = currentTask.listname;
-    createListForm.style.display = "block";
-    createListOverlay.style.display = "block";
+    displayCreateListForm();
     updateSelectListOptions();
 
 }
@@ -609,7 +611,7 @@ const updateTaskListContainer = (arr, container) => {
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
-                            <div class="task-list-entry-info">
+                            <div class="task-list-entry-info" id="task-list-entry-info-${id}" onclick="renameTask(this)">
                                 <span id="task-entry-title">${title}</span>
                                 <p id="task-entry-description">${description}</p>
                             </div>
@@ -635,12 +637,12 @@ const updateTaskListContainer = (arr, container) => {
                                             <span>Delete</span>
                                         </div>
                                         <div class="task-options-list-section" id="task-options-list-section-${listName.trim().replace(" ", "-").toLowerCase()}">
-                                            <div class="task-options-list-name-entry">
+                                            <div class="task-options-list-name-entry" id="task-options-list-name-entry-${id}">
                                                 <div class="checkmark-svg show svg-options">
                                                 </div>
                                                 <span>${listName}</span>
                                             </div>
-                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}" data-menu="${id}">
                                                 
                                             </div>
                                             <div class="task-options-new-list" id="task-option-new-list-${id}" onclick="moveTaskToNewList(this)">
@@ -658,7 +660,7 @@ const updateTaskListContainer = (arr, container) => {
                                 </div>
 
                                 <div class="task-option-starred-svg-container${starred === 'yes' ? ' starred' : ''}" id="starred-option-${id}" onclick="starTask(this)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                    <svg class="starred-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
                                         width="20px" fill="#FFFFFF">
                                         <path
                                             d="m352-293 128-76 129 76-34-144 111-95-147-13-59-137-59 137-147 13 112 95-34 144ZM243-144l63-266L96-589l276-24 108-251 108 252 276 23-210 179 63 266-237-141-237 141Zm237-333Z" />
@@ -670,6 +672,21 @@ const updateTaskListContainer = (arr, container) => {
     });
     addStarredVisibility();
     moveTaskToNewListOptions();
+}
+
+const renameTask = (el) => {
+    const taskId= el.id.slice(el.className.length + 1);
+    console.log(taskId)
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === taskId);
+
+    currentTask2 = taskDataArr[dataArrIndex];
+
+    taskTitle.value = taskDataArr[dataArrIndex].title;
+    taskDate.value = taskDataArr[dataArrIndex].date;
+    taskDescription.value = taskDataArr[dataArrIndex].description;
+    selectContainer.value = taskDataArr[dataArrIndex].listName;
+
+    displayCreateTaskForm();
 }
 
 const moveTaskToNewListOptions = () => {
@@ -685,30 +702,46 @@ const moveTaskToNewListOptions = () => {
 
         newArr.forEach(liname => {
             otherEntriesContainer.innerHTML += `
-                <div class="task-options-list-name-entry">
+                <div class="task-options-list-name-entry" id="task-options-list-name-entry-${liname.trim().replace(" ", "-").toLowerCase()}" onclick="moveTaskTo(this)">
                 <div class="checkmark-svg svg-options">
                 </div>
                 <span>${liname}</span>
+                </div>
             `;
         });
     });
 }
 
-/* const moveTaskToNewList = (element) => {
-    displayCreateListForm();
+const moveTaskTo = (el) => {
+    const listToMoveName = el.id.slice(29).replace("-", " ");
+    const taskID = el.parentElement.dataset.menu;
+    const taskIndex = taskDataArr.findIndex(task => task.id === taskID);
+    const listIndex = dataArr.findIndex(list => list.listname.toLowerCase() === listToMoveName);
 
-    const taskId = element.id.slice(element.className.length);
-    const taskIndex = taskDataArr.findIndex(task => task.id === taskId);
-    console.log(listnamesArr[0]);
-    
+    taskDataArr[taskIndex].listName = dataArr[listIndex].listname;
+
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
 
-    updateTaskList();
+    document.getElementById(`task-list-entry-container-${taskID}`).remove();
 
-} */
+    updateTaskList();
+}
+
+const moveTaskToNewList = (element) => {
+    const taskId = element.id.slice(element.className.length);
+    const taskIndex = taskDataArr.findIndex(task => task.id === taskId);
+    taskToMove.push(taskDataArr[taskIndex]);
+
+    displayCreateListForm();
+}
 
 const displayCreateListForm = () => {
     createListForm.style.display = "block";
+    createListOverlay.style.display = "block";
+}
+
+const displayCreateTaskForm = () => {
+    taskFormLayout.style.display = "flex";
     createListOverlay.style.display = "block";
 }
 
