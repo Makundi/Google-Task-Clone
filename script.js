@@ -89,9 +89,6 @@ createForm.addEventListener('submit', (event) => {
     updateListNames();
     updateSelectListOptions();
     filterCheckedList();
-    updateTaskList();
-    updateCompletedContainer();
-    moveTaskToNewListOptions();
     taskToMove.splice(0);
 });
 
@@ -129,10 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
     updateListNames();
     filterCheckedList();
     updateSelectListOptions();
-    updateTaskList();
-    updateCompletedContainer();
-    addStarredVisibility();
-    moveTaskToNewListOptions();
 });
 
 taskFormLayout.addEventListener("submit", (e) => {
@@ -150,6 +143,7 @@ const addDefaultList = () => {
         const dataPoint = {};
         dataPoint["listname"] = "My Tasks";
         dataPoint["default"] = "yes";
+        dataPoint["sortby"] = "my-order";
 
         dataArr.unshift(dataPoint);
         localStorage.setItem("data", JSON.stringify(dataArr));
@@ -213,22 +207,22 @@ const filterCheckedList = () => {
                                     <span>Sort by</span>
                                     <div class="sort-options">
                                         <div class="sort-by-my-order" id="my-order-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg show" id="my-order-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="checkmark-svg ${checkbox.value.trim().replace(" ", "-").toLowerCase()} show" id="my-order-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                             </div>
                                            <span>My order</span>
                                         </div>
                                         <div class="sort-by-date" id="date-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="date-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="checkmark-svg ${checkbox.value.trim().replace(" ", "-").toLowerCase()}" id="date-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                             </div>
                                             <span>Date</span>               
                                         </div>
                                         <div class="sort-by-starred" id="starred-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="starred-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="checkmark-svg ${checkbox.value.trim().replace(" ", "-").toLowerCase()}" id="starred-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                             </div>
                                            <span>Starred recently</span>
                                         </div>
                                         <div class="sort-by-title" id="title-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="title-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="checkmark-svg ${checkbox.value.trim().replace(" ", "-").toLowerCase()}" id="title-checkmark-svg-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
                                             </div>
                                             <span>Title</span>
                                         </div>
@@ -301,6 +295,8 @@ const filterCheckedList = () => {
         `;
         }
     });
+    updateTaskList();
+    updateCompletedContainer();
 }
 
 const toggleNewTaskForm = (el) => {
@@ -318,6 +314,7 @@ const createOrRenameList = () => {
 
     dataPoint["listname"] = listNameInput.value;
     dataPoint["default"] = "no";
+    dataPoint["sortby"] = "my-order";
 
     if (dataArrIndex === -1) {
         dataArr.push(dataPoint);
@@ -410,12 +407,14 @@ const updateTaskList = () => {
     if (taskDataArr.length === 0) return;
 
     listnameArr.forEach(name => {
-        const taskListContainer = document.getElementById(`task-list-${name.textContent.trim().replace(" ", "-").toLowerCase()}`);
+        const updatedName = name.textContent.trim().replace(" ", "-").toLowerCase();
         const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "no");
+        const index = dataArr.findIndex(data => data.listname === name.textContent);
+        const sortby = dataArr[index].sortby
 
         if (filteredArr.length === 0) return;
 
-        updateTaskListContainer(filteredArr, taskListContainer)
+        sortedTaskList(filteredArr, sortby, updatedName);
     });
 }
 
@@ -530,7 +529,15 @@ const sortTasks = (el) => {
     sortByList.forEach(item => {
         if (el.id.includes(item)) {
             const listname = el.id.slice(item.length + 1).replace("-", " ");
+            const index = dataArr.findIndex(data => data.listname.toLowerCase() === listname);
             const arr = taskDataArr.filter(task => task.listName.toLowerCase() === listname && task.completed === "no");
+
+            if (dataArr[index].sortby !== item) {
+                dataArr[index].sortby = item;
+
+                localStorage.setItem("data", JSON.stringify(dataArr));
+            }
+            
             sortedTaskList(arr, item, el.id.slice(item.length + 1));
         }
     })
@@ -544,31 +551,31 @@ const sortedTaskList = (arr, orderBy, name1) => {
 
     if (orderBy === "my-order") {
         updateTaskListContainer(arr, taskListContainer);
-        addOrRemoveCheckmark(checkmarkContainer);
+        addOrRemoveCheckmark(checkmarkContainer, name1);
     }
     else if (orderBy === "date") {
         arr.sort((a, b) => new Date(a.date) - new Date(b.date));
         updateTaskListContainer(arr, taskListContainer);
-        addOrRemoveCheckmark(checkmarkContainer);
+        addOrRemoveCheckmark(checkmarkContainer, name1);
     }
     else if (orderBy === "starred") {
         alert("working on it");
-        addOrRemoveCheckmark(checkmarkContainer);
+        addOrRemoveCheckmark(checkmarkContainer, name1);
     }
     else if (orderBy === "title") {
         arr.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
         updateTaskListContainer(arr, taskListContainer);
-        addOrRemoveCheckmark(checkmarkContainer);
+        addOrRemoveCheckmark(checkmarkContainer, name1);
     }
 }
 
-const addOrRemoveCheckmark = (currentSortOption) => {
+const addOrRemoveCheckmark = (currentSortOption, name) => {
     if (!currentSortOption) return;
 
     const isChecked = currentSortOption.classList.contains("show");
 
 
-    document.querySelectorAll(".checkmark-svg.show")
+    document.querySelectorAll(`.checkmark-svg.${name}`)
         .forEach(container => container.classList.remove("show"));
 
 
@@ -642,8 +649,7 @@ const updateTaskListContainer = (arr, container) => {
                                                 </div>
                                                 <span>${listName}</span>
                                             </div>
-                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}" data-menu="${id}">
-                                                
+                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}" data-menu="${id}">  
                                             </div>
                                             <div class="task-options-new-list" id="task-option-new-list-${id}" onclick="moveTaskToNewList(this)">
                                                 <div class="new-list-svg">
@@ -693,21 +699,23 @@ const moveTaskToNewListOptions = () => {
     const listnameArr = dataArr.map(data => data.listname);
 
     listnameArr.forEach(name => {
-        const otherEntriesContainer = document.getElementById(`task-options-list-name-other-entries-${name.trim().replace(" ", "-").toLowerCase()}`);
+        const otherEntriesContainer = document.querySelectorAll(`#task-options-list-name-other-entries-${name.trim().replace(" ", "-").toLowerCase()}`);
         const newArr = listnameArr.filter(name1 => name1 !== name);
 
         if(!otherEntriesContainer) return;
 
-        otherEntriesContainer.innerHTML = "";
+        otherEntriesContainer.forEach(container => {
+            container.innerHTML = "";
 
-        newArr.forEach(liname => {
-            otherEntriesContainer.innerHTML += `
+            newArr.forEach(liname => {
+            container.innerHTML += `
                 <div class="task-options-list-name-entry" id="task-options-list-name-entry-${liname.trim().replace(" ", "-").toLowerCase()}" onclick="moveTaskTo(this)">
                 <div class="checkmark-svg svg-options">
                 </div>
                 <span>${liname}</span>
                 </div>
             `;
+        });
         });
     });
 }
