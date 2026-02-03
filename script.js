@@ -234,7 +234,7 @@ const filterCheckedList = () => {
                                 </div>
                                 <div class="task-edit-section">
                                     <span>Print list</span>
-                                    <span>Delete all completed tasks</span>
+                                    <span id="delete-completed-tasks-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" onclick="deleteAllCompletedTasks(this)">Delete all completed tasks</span>
                                 </div>
                             </div>
 
@@ -296,6 +296,22 @@ const filterCheckedList = () => {
         }
     });
     updateTaskList();
+    updateCompletedContainer();
+}
+
+const deleteAllCompletedTasks = (el) => {
+    const listname = el.id.slice(23).replace("-", " ");
+    const completedTasksIdArr = taskDataArr.filter(task => task.listName.toLowerCase() === listname && task.completed === "yes").map(t => t.id);
+    const dataArrIndex = dataArr.findIndex(list => list.listname.toLowerCase() === listname);
+
+    completedTasksIdArr.forEach(id => {
+        const index = taskDataArr.findIndex(task => task.id === id);
+        taskDataArr.splice(index);
+    });
+    localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+
+    document.getElementById(`number-of-completed-task-${el.id.slice(23)}`).textContent = `Completed (${numberOfCompletedTasks(dataArr[dataArrIndex].listname)})`;
+
     updateCompletedContainer();
 }
 
@@ -441,7 +457,7 @@ const updateCompletedTasks = (el) => {
 
 const updateCompletedContainer = () => {
 
-    if (taskDataArr.length === 0) return;
+    //if (taskDataArr.length === 0) return;
 
     const listnameArr = document.querySelectorAll("#task-list-name");
     const completedDate = new Date();
