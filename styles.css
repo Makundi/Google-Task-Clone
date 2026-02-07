@@ -181,8 +181,12 @@ button svg:hover {
     padding: 3px;
 }
 
-.task-features ul li:first-child {
+ .task-features .all-tasks {
     background-color: var(--all-task-list-item-bg-color);
+}
+
+.all-tasks.unclicked {
+    background: none;
 }
 
 .task-features ul li svg {
@@ -190,13 +194,18 @@ button svg:hover {
     vertical-align: bottom;
 }
 
-.task-features ul li:nth-child(2):hover {
+.starred-element:hover,
+.task-features .all-tasks.unclicked:hover{
     background-color: var(--navbar-icons-hover-color);
     cursor: pointer;
 }
 
-.task-features ul li:first-child:hover,
-.task-features ul li:first-child svg:hover {
+.starred-element.starred-btn {
+    background-color: var(--all-task-list-item-bg-color);
+}
+
+.task-features .all-tasks:hover,
+.starred-btn:hover {
     background-color: var(--all-task-list-item-hover-bg-color);
     cursor: pointer;
 }
@@ -608,6 +617,10 @@ button svg:hover {
     margin-left: 10px;
     padding-top: 5px;
 }
+.starred-title {
+    margin-left: 20px;
+    font-size: small;
+}
 
 .task-card-body,
 .completed-tasks {
@@ -615,6 +628,10 @@ button svg:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.task-card-body.starred-recently {
+    margin-bottom: 15px;
 }
 
 .task-list {

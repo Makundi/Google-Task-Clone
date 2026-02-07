@@ -28,7 +28,8 @@ const taskDate = document.getElementById("task-date");
 const taskDescription = document.getElementById("task-description");
 const selectContainer = document.getElementById("select-container");
 const saveTaskBtn = document.getElementById("save-task-btn1");
-
+const starredTaskBtn = document.getElementById("starred-tasks-btn");
+const allTaskBtn = document.getElementById("all-tasks-btn");
 
 menuIcon.addEventListener('click', () => {
     sideBar.classList.toggle('hide-sidebar');
@@ -80,16 +81,29 @@ createForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
     if (taskToMove.length !== 0) {
-       const index = taskDataArr.findIndex(task => task.id === taskToMove[0].id);
+        const index = taskDataArr.findIndex(task => task.id === taskToMove[0].id);
 
-       taskDataArr[index].listName = listNameInput.value;
-       localStorage.setItem("tasks", JSON.stringify(taskDataArr));
+        taskDataArr[index].listName = listNameInput.value;
+        localStorage.setItem("tasks", JSON.stringify(taskDataArr));
     }
     createOrRenameList();
     updateListNames();
     updateSelectListOptions();
     filterCheckedList();
     taskToMove.splice(0);
+});
+
+allTaskBtn.addEventListener("click", () => {
+    starredTaskBtn.classList.remove("starred-btn");
+    allTaskBtn.classList.remove("unclicked");
+    filterCheckedList();
+});
+
+starredTaskBtn.addEventListener("click", () => {
+    starred();
+    updateStarredContainer();
+    starredTaskBtn.classList.add("starred-btn");
+    allTaskBtn.classList.add("unclicked");
 });
 
 taskContainer.addEventListener("click", (e) => {
@@ -252,6 +266,25 @@ const filterCheckedList = () => {
                             <span class="add-new-task-btn">Add a task</span>
                         </div>
                     </div>
+                    <div class="task-list-entry-container add-task-mini-form" id="new-form-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info new-task-form">
+                                <form id="new-task-form-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                    <input type="text" class="new-task-form-title" id="new-task-form-title-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" placeholder="Title" required>
+                                    <input type="text" class="new-task-form-description" id="new-task-form-description-${checkbox.value.trim().replace(" ", "-").toLowerCase()}" placeholder="Details">
+                                    <input type="date" class="new-task-form-date" id="new-task-form-date-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
+                                    <div class="button-layout new-task-layout">
+                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
+                                        <button id="create-new-task-save-btn" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                 </div>
                 <div class="task-card-body">
                     <div class="task-list" id="task-list-${checkbox.value.trim().replace(" ", "-").toLowerCase()}">
@@ -440,19 +473,21 @@ const resetTaskForm = () => {
     taskDescription.value = "";
 }
 
-const updateCompletedTasks = (el) => {
+const updateCompletedTasks = (el, options) => {
     const taskEntryContainer = document.querySelector(`#task-list-entry-container-${el.id}`);
     const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id);
 
     taskDataArr[dataArrIndex].completed = "yes";
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
 
-    taskEntryContainer.remove();
-    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
-
-
-    updateCompletedContainer();
-    updateListNames();
+    if (options === "deleteuncompleted") {
+        taskEntryContainer.remove();
+        document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
+        updateCompletedContainer();
+       
+    }
+     updateListNames();
+    //updateStarredContainer();
 }
 
 const updateCompletedContainer = () => {
@@ -479,7 +514,7 @@ const updateCompletedContainer = () => {
                 <div class="completed-tasks-entry" id="tasks-entry-completed-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
-                                    <input type="checkbox" id="completed-${id}" onclick="unmarkCompletedTask(this)" checked>
+                                    <input type="checkbox" id="completed-${id}" onclick="unmarkCompletedTask(this,'unmarkTask')" checked>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
@@ -525,18 +560,24 @@ const deleteTask = (deleteIcon, action) => {
     updateListNames();
 }
 
-const unmarkCompletedTask = (el) => {
+const unmarkCompletedTask = (el, options) => {
     const completedTaskEntry = document.getElementById(`tasks-entry-${el.id}`);
-    const dataArrIndex = taskDataArr.findIndex(data => data.id === el.id.slice(10));
+    const idTask = options === "unmarkStarredTask" ? el.id : el.id.slice(10);
+
+    const dataArrIndex = taskDataArr.findIndex(data => data.id === idTask);
 
     taskDataArr[dataArrIndex].completed = "no";
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
 
-    completedTaskEntry.remove();
-    document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
+    if (options === "unmarkTask") {
+        completedTaskEntry.remove();
+        document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
+        updateTaskList();
+       
+    }
 
-    updateTaskList();
-    updateListNames();
+     updateListNames();
+    //updateStarredContainer();
 }
 
 const sortTasks = (el) => {
@@ -553,7 +594,7 @@ const sortTasks = (el) => {
 
                 localStorage.setItem("data", JSON.stringify(dataArr));
             }
-            
+
             sortedTaskList(arr, item, el.id.slice(item.length + 1));
         }
     })
@@ -681,7 +722,7 @@ const updateTaskListContainer = (arr, container) => {
                                     </div>
                                 </div>
 
-                                <div class="task-option-starred-svg-container${starred === 'yes' ? ' starred' : ''}" id="starred-option-${id}" onclick="starTask(this)">
+                                <div class="task-option-starred-svg-container${starred === 'yes' ? ' starred' : ''}" id="starred-option-${id}" onclick="starTask(this, 'task-section')">
                                     <svg class="starred-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
                                         width="20px" fill="#FFFFFF">
                                         <path
@@ -697,7 +738,7 @@ const updateTaskListContainer = (arr, container) => {
 }
 
 const renameTask = (el) => {
-    const taskId= el.id.slice(el.className.length + 1);
+    const taskId = el.id.slice(el.className.length + 1);
     console.log(taskId)
     const dataArrIndex = taskDataArr.findIndex(data => data.id === taskId);
 
@@ -718,20 +759,20 @@ const moveTaskToNewListOptions = () => {
         const otherEntriesContainer = document.querySelectorAll(`#task-options-list-name-other-entries-${name.trim().replace(" ", "-").toLowerCase()}`);
         const newArr = listnameArr.filter(name1 => name1 !== name);
 
-        if(!otherEntriesContainer) return;
+        if (!otherEntriesContainer) return;
 
         otherEntriesContainer.forEach(container => {
             container.innerHTML = "";
 
             newArr.forEach(liname => {
-            container.innerHTML += `
+                container.innerHTML += `
                 <div class="task-options-list-name-entry" id="task-options-list-name-entry-${liname.trim().replace(" ", "-").toLowerCase()}" onclick="moveTaskTo(this)">
                 <div class="checkmark-svg svg-options">
                 </div>
                 <span>${liname}</span>
                 </div>
             `;
-        });
+            });
         });
     });
 }
@@ -820,7 +861,7 @@ document.addEventListener("click", (e) => {
     }
 });
 
-const starTask = (el) => {
+const starTask = (el, options) => {
     const id = el.id.slice(15);
     const dataArrIndex = taskDataArr.findIndex(data => data.id === id);
 
@@ -832,7 +873,12 @@ const starTask = (el) => {
     else {
         taskDataArr[dataArrIndex].starred = "no";
         el.style.visibility = "hidden";
-        updateTaskList();
+        if (options === "task-section") {
+            updateTaskList();
+        }
+        else {
+            updateStarredContainer();
+        }
     }
 
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
@@ -874,3 +920,178 @@ taskContainer.addEventListener("submit", (e) => {
     updateTaskList();
     toggleNewTaskForm();
 });
+
+const starred = () => {
+    taskContainer.innerHTML = "";
+
+   
+
+    taskContainer.innerHTML = `<div class="task-card" id="task-card-starred-recently">
+                <div class="task-card-header">
+                    <div class="task-card-nav">
+                        <div class="tasklistname">
+                            <span id="task-list-name">Starred tasks</span>
+                        </div>
+                        <div class="task-card-menu-svg" data-menu="starred-recently">
+                            <div class="menu-svg">
+                                <svg id="task-card-menu" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+                                <path
+                                    d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                            </svg>
+                            </div>
+                            <div class="dropdown-list-menu" id="starred-recently">
+                                <div class="sort-section">
+                                    <span>Sort by</span>
+                                    <div class="sort-options">
+                                        <div class="sort-by-starred" id="starred-sort" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="starred-checkmark-svg-starred-recently">
+                                            </div>
+                                           <span>Starred recently</span>
+                                        </div>
+                                        <div class="sort-by-date" id="date-starred-recently" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="date-checkmark-svg-starred-recently">
+                                            </div>
+                                            <span>Date</span>               
+                                        </div>
+                                        <div class="sort-by-title" id="title-starred-recently" onclick="sortTasks(this)">
+                                            <div class="checkmark-svg" id="title-checkmark-svg-starred-recently">
+                                            </div>
+                                            <span>Title</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="task-edit-section">
+                                    <span>Print list</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="add-new-task-row" id="add-new-task-row-starred-recently" onclick="toggleNewTaskForm(this)">
+                        <div class="new-task-icon">
+                            <svg id="add-new-task-icon" xmlns="http://www.w3.org/2000/svg" height="20px"
+                            viewBox="0 -960 960 960" width="20px" fill="#a8c7fa">
+                            <path
+                                d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q32 0 62-6t58-17l60 61q-41 20-86 31t-94 11Zm280-80v-120H640v-80h120v-120h80v120h120v80H840v120h-80ZM424-296 254-466l56-56 114 114 400-401 56 56-456 457Z" />
+                        </svg>
+                        </div>
+                        <div class="add-task-label">
+                            <span class="add-new-task-btn">Add a task</span>
+                        </div>
+                    </div>
+                    <div class="task-list-entry-container add-task-mini-form" id="new-form-starred-recently">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info new-task-form">
+                                <form id="new-task-form-starred-recently">
+                                    <input type="text" class="new-task-form-title" id="new-task-form-title-starred-recently" placeholder="Title" required>
+                                    <input type="text" class="new-task-form-description" id="new-task-form-description-starred-recently" placeholder="Details">
+                                    <input type="date" class="new-task-form-date" id="new-task-form-date-starred-recently">
+                                    <div class="button-layout new-task-layout">
+                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
+                                        <button id="create-new-task-save-btn" type="submit">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                </div>
+                <div class="task-card-body starred-recently">
+                    <div class="starred-title">
+                        <span>Starred recently</span>
+                    </div>
+                    <div class="task-list" id="task-list-starred-recently">
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        `;
+
+}
+
+const updateStarredContainer = () => {
+    const taskContainer = document.getElementById("task-list-starred-recently");
+    taskContainer.innerHTML = "";
+
+    const tasks = taskDataArr.filter(task => task.starred === "yes");
+
+    if (tasks.length === 0) {
+        taskContainer.innerHTML = "No starred tasks";
+        return;
+    }
+
+    tasks.forEach(({ id, title, date, description, listName, completed, starred }) => {
+        taskContainer.innerHTML += `
+            <div class="task-list-entry-container" id="task-list-entry-container-${id}">
+                            <div class="checkbox-container">
+                                <label class="container">
+                                    <input type="checkbox" id="${id}" onclick=${completed === "no" ? "updateCompletedTasks(this,'starreduncompleted')": "unmarkCompletedTask(this,'unmarkStarredTask')"} ${completed === "yes" ? "checked": ""}>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="task-list-entry-info" id="task-list-entry-info-${id}" onclick="renameTask(this)">
+                                <span id="task-entry-title">${title}</span>
+                                <p id="task-entry-description">${description}</p>
+                            </div>
+                            <div class="task-options">
+
+                                <div class="task-options-menu-container">
+                                    <div class="task-option-delete-svg-container" data-menu="${id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                            width="17px" fill="#FFFFFF">
+                                            <path
+                                                d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+                                        </svg>
+                                    </div>
+                                    <div class="task-options-menu-dropdown" id="task-options-menu-dropdown-${id}">
+                                        <div class="delete-task-section" id="option-task-${id}" onclick="deleteTask(this)">
+                                            <div class="delete-task-section-svg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="20px"
+                                                    viewBox="0 -960 960 960" width="20px" fill="#FFFFFF">
+                                                    <path
+                                                        d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z" />
+                                                </svg>
+                                            </div>
+                                            <span>Delete</span>
+                                        </div>
+                                        <div class="task-options-list-section" id="task-options-list-section-${listName.trim().replace(" ", "-").toLowerCase()}">
+                                            <div class="task-options-list-name-entry" id="task-options-list-name-entry-${id}">
+                                                <div class="checkmark-svg show svg-options">
+                                                </div>
+                                                <span>${listName}</span>
+                                            </div>
+                                            <div class="task-options-list-name-other-entries" id="task-options-list-name-other-entries-${listName.trim().replace(" ", "-").toLowerCase()}" data-menu="${id}">  
+                                            </div>
+                                            <div class="task-options-new-list" id="task-option-new-list-${id}" onclick="moveTaskToNewList(this)">
+                                                <div class="new-list-svg">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px"
+                                                        viewBox="0 -960 960 960" width="20px" fill="#FFFFFF">
+                                                        <path
+                                                            d="M684-48v-108H576v-72h108v-108h72v108h108v72H756v108h-72ZM216-216v-528 528Zm.37 72Q186-144 165-165.15 144-186.3 144-216v-528q0-29.7 21.15-50.85Q186.3-816 216-816h528q29.7 0 50.85 21.15Q816-773.7 816-744v333q-17-8-35-12.5t-37-6.5v-314H216v528h266q-2 18-1 36t5 36H216.37Zm107.42-144q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5Zm0-156q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5Zm0-156q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5ZM432-444h240v-72H432v72Zm0-156h240v-72H432v72Zm0 312h68q9-20 21.5-38t27.5-34H432v72Z" />
+                                                    </svg>
+                                                </div>
+                                                <span>New list</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="task-option-starred-svg-container${starred === 'yes' ? ' starred' : ''}" id="starred-option-${id}" onclick="starTask(this, 'starred-section')">
+                                    <svg class="starred-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
+                                        width="20px" fill="#FFFFFF">
+                                        <path
+                                            d="m352-293 128-76 129 76-34-144 111-95-147-13-59-137-59 137-147 13 112 95-34 144ZM243-144l63-266L96-589l276-24 108-251 108 252 276 23-210 179 63 266-237-141-237 141Zm237-333Z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+            `
+    });
+    addStarredVisibility();
+    moveTaskToNewListOptions();
+}
