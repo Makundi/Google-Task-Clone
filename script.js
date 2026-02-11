@@ -1,5 +1,6 @@
 const dataArr = JSON.parse(localStorage.getItem("data")) || [];
 const taskDataArr = JSON.parse(localStorage.getItem("tasks")) || [];
+const starredData = JSON.parse(localStorage.getItem("starred")) || [];
 
 let currentTask = {};
 let currentTask2 = {};
@@ -101,7 +102,7 @@ allTaskBtn.addEventListener("click", () => {
 
 starredTaskBtn.addEventListener("click", () => {
     starred();
-    updateStarredContainer();
+    updateStarredTaskList();
     starredTaskBtn.classList.add("starred-btn");
     allTaskBtn.classList.add("unclicked");
 });
@@ -155,11 +156,19 @@ taskFormLayout.addEventListener("submit", (e) => {
 const addDefaultList = () => {
     if (dataArr.length === 0 || typeof (dataArr) === null) {
         const dataPoint = {};
+        const starredList = {};
+
         dataPoint["listname"] = "My Tasks";
         dataPoint["default"] = "yes";
         dataPoint["sortby"] = "my-order";
 
+        starredList["listname"] = "Starred tasks";
+        starredList["orderby"] = "sort";
+
         dataArr.unshift(dataPoint);
+        starredData.push(starredList);
+
+        localStorage.setItem("starred", JSON.stringify(starredData));
         localStorage.setItem("data", JSON.stringify(dataArr));
 
     }
@@ -437,6 +446,7 @@ const addTask = (taskTitle, taskDate, taskDescription, listname) => {
         listName: listname,
         completed: "no",
         starred: "no",
+        starredDate: "",
     };
 
     if (dataArrIndex === -1) {
@@ -459,11 +469,11 @@ const updateTaskList = () => {
         const updatedName = name.textContent.trim().replace(" ", "-").toLowerCase();
         const filteredArr = taskDataArr.filter(task => task.listName === name.textContent && task.completed === "no");
         const index = dataArr.findIndex(data => data.listname === name.textContent);
-        const sortby = dataArr[index].sortby
+        const sortby1 = dataArr[index].sortby;
 
         if (filteredArr.length === 0) return;
 
-        sortedTaskList(filteredArr, sortby, updatedName);
+        sortedTaskList(filteredArr, sortby1, updatedName);
     });
 }
 
@@ -484,9 +494,9 @@ const updateCompletedTasks = (el, options) => {
         taskEntryContainer.remove();
         document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
         updateCompletedContainer();
-       
+
     }
-     updateListNames();
+    updateListNames();
     //updateStarredContainer();
 }
 
@@ -573,10 +583,10 @@ const unmarkCompletedTask = (el, options) => {
         completedTaskEntry.remove();
         document.getElementById(`number-of-completed-task-${taskDataArr[dataArrIndex].listName.trim().replace(" ", "-").toLowerCase()}`).textContent = `Completed (${numberOfCompletedTasks(taskDataArr[dataArrIndex].listName)})`;
         updateTaskList();
-       
+
     }
 
-     updateListNames();
+    updateListNames();
     //updateStarredContainer();
 }
 
@@ -616,7 +626,8 @@ const sortedTaskList = (arr, orderBy, name1) => {
         addOrRemoveCheckmark(checkmarkContainer, name1);
     }
     else if (orderBy === "starred") {
-        alert("working on it");
+        const arr2 = arr.filter(task => task.starred === "yes").sort((a, b) => new Date(a.date) - new Date(b.date));
+        updateTaskListContainer(arr2, taskListContainer);
         addOrRemoveCheckmark(checkmarkContainer, name1);
     }
     else if (orderBy === "title") {
@@ -649,25 +660,6 @@ const updateTaskListContainer = (arr, container) => {
 
     arr.forEach(({ id, title, date, description, listName, starred }) => {
         container.innerHTML += `
-                <div class="task-list-entry-container add-task-mini-form" id="new-form-${listName.trim().replace(" ", "-").toLowerCase()}">
-                            <div class="checkbox-container">
-                                <label class="container">
-                                    <input type="checkbox">
-                                    <span class="checkmark"></span>
-                                </label>
-                            </div>
-                            <div class="task-list-entry-info new-task-form">
-                                <form id="new-task-form-${listName.trim().replace(" ", "-").toLowerCase()}">
-                                    <input type="text" class="new-task-form-title" id="new-task-form-title-${listName.trim().replace(" ", "-").toLowerCase()}" placeholder="Title" required>
-                                    <input type="text" class="new-task-form-description" id="new-task-form-description-${listName.trim().replace(" ", "-").toLowerCase()}" placeholder="Details">
-                                    <input type="date" class="new-task-form-date" id="new-task-form-date-${listName.trim().replace(" ", "-").toLowerCase()}">
-                                    <div class="button-layout new-task-layout">
-                                        <button id="create-new-task-cancel-btn" type="reset">Cancel</button>
-                                        <button id="create-new-task-save-btn" type="submit">Save</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
                 <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
@@ -782,14 +774,18 @@ const moveTaskTo = (el) => {
     const taskID = el.parentElement.dataset.menu;
     const taskIndex = taskDataArr.findIndex(task => task.id === taskID);
     const listIndex = dataArr.findIndex(list => list.listname.toLowerCase() === listToMoveName);
+    const starredRec = document.querySelector(`.starred-${taskID}`);
 
     taskDataArr[taskIndex].listName = dataArr[listIndex].listname;
 
     localStorage.setItem("tasks", JSON.stringify(taskDataArr));
 
-    document.getElementById(`task-list-entry-container-${taskID}`).remove();
+    if (!starredRec) {
+        document.getElementById(`task-list-entry-container-${taskID}`).remove();
+    }
 
     updateTaskList();
+    updateStarredTaskList();
 }
 
 const moveTaskToNewList = (element) => {
@@ -867,17 +863,19 @@ const starTask = (el, options) => {
 
     if (taskDataArr[dataArrIndex].starred === "no") {
         taskDataArr[dataArrIndex].starred = "yes";
+        taskDataArr[dataArrIndex].starredDate = Date.now();
         el.style.backgroundColor = "blue";
         el.style.visibility = "visible";
     }
     else {
         taskDataArr[dataArrIndex].starred = "no";
+        taskDataArr[dataArrIndex].starredDate = "";
         el.style.visibility = "hidden";
         if (options === "task-section") {
             updateTaskList();
         }
         else {
-            updateStarredContainer();
+            updateStarredTaskList();
         }
     }
 
@@ -924,7 +922,7 @@ taskContainer.addEventListener("submit", (e) => {
 const starred = () => {
     taskContainer.innerHTML = "";
 
-   
+
 
     taskContainer.innerHTML = `<div class="task-card" id="task-card-starred-recently">
                 <div class="task-card-header">
@@ -944,18 +942,18 @@ const starred = () => {
                                 <div class="sort-section">
                                     <span>Sort by</span>
                                     <div class="sort-options">
-                                        <div class="sort-by-starred" id="starred-sort" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="starred-checkmark-svg-starred-recently">
+                                        <div class="sort-by-starred" id="sort-starred-recently" onclick="sortStarredTasks(this)">
+                                            <div class="checkmark-svg starred-recently" id="sort-checkmark-svg-starred-recently">
                                             </div>
                                            <span>Starred recently</span>
                                         </div>
-                                        <div class="sort-by-date" id="date-starred-recently" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="date-checkmark-svg-starred-recently">
+                                        <div class="sort-by-date" id="date-starred-recently" onclick="sortStarredTasks(this)">
+                                            <div class="checkmark-svg starred-recently" id="date-checkmark-svg-starred-recently">
                                             </div>
                                             <span>Date</span>               
                                         </div>
-                                        <div class="sort-by-title" id="title-starred-recently" onclick="sortTasks(this)">
-                                            <div class="checkmark-svg" id="title-checkmark-svg-starred-recently">
+                                        <div class="sort-by-title" id="title-starred-recently" onclick="sortStarredTasks(this)">
+                                            <div class="checkmark-svg starred-recently" id="title-checkmark-svg-starred-recently">
                                             </div>
                                             <span>Title</span>
                                         </div>
@@ -1014,11 +1012,49 @@ const starred = () => {
 
 }
 
-const updateStarredContainer = () => {
-    const taskContainer = document.getElementById("task-list-starred-recently");
-    taskContainer.innerHTML = "";
+const updateStarredTaskList = () => {
+    const arr = taskDataArr.filter(task => task.starred === "yes");
+   sortedStarredTaskList(arr, starredData[0].orderby);
+}
 
-    const tasks = taskDataArr.filter(task => task.starred === "yes");
+const sortStarredTasks = (el) => {
+    const index = el.id.indexOf("starred-recently") - 1;
+    const sortby = el.id.slice(0, index);
+    const arr = taskDataArr.filter(task => task.starred === "yes");
+
+    starredData[0].orderby = sortby;
+
+    localStorage.setItem("starred", JSON.stringify(starredData));
+    sortedStarredTaskList(arr, sortby);
+    
+}
+
+const sortedStarredTaskList = (arr, sortby) => {
+    const checkmark = document.getElementById(`${sortby}-checkmark-svg-starred-recently`);
+
+    if (sortby === "sort") {
+         arr.sort((a, b) => b.starredDate - a.starredDate);
+        updateStarredContainer(arr);
+        addOrRemoveCheckmark(checkmark, "starred-recently")
+    }
+    else if (sortby === "date") {
+        arr.sort((a, b) => new Date(a.date) - new Date(b.date));
+        updateStarredContainer(arr);
+        addOrRemoveCheckmark(checkmark, "starred-recently");
+    }
+    else if (sortby === "title") {
+        arr.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+        updateStarredContainer(arr);
+        addOrRemoveCheckmark(checkmark, "starred-recently");
+    }
+}
+
+const updateStarredContainer = (tasks) => {
+    const taskContainer = document.getElementById("task-list-starred-recently");
+
+    if(!taskContainer) return;
+
+    taskContainer.innerHTML = "";
 
     if (tasks.length === 0) {
         taskContainer.innerHTML = "No starred tasks";
@@ -1030,7 +1066,7 @@ const updateStarredContainer = () => {
             <div class="task-list-entry-container" id="task-list-entry-container-${id}">
                             <div class="checkbox-container">
                                 <label class="container">
-                                    <input type="checkbox" id="${id}" onclick=${completed === "no" ? "updateCompletedTasks(this,'starreduncompleted')": "unmarkCompletedTask(this,'unmarkStarredTask')"} ${completed === "yes" ? "checked": ""}>
+                                    <input type="checkbox" id="${id}" onclick=${completed === "no" ? "updateCompletedTasks(this,'starreduncompleted')" : "unmarkCompletedTask(this,'unmarkStarredTask')"} ${completed === "yes" ? "checked" : ""}>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
@@ -1060,7 +1096,7 @@ const updateStarredContainer = () => {
                                             <span>Delete</span>
                                         </div>
                                         <div class="task-options-list-section" id="task-options-list-section-${listName.trim().replace(" ", "-").toLowerCase()}">
-                                            <div class="task-options-list-name-entry" id="task-options-list-name-entry-${id}">
+                                            <div class="task-options-list-name-entry starred-${id}" id="task-options-list-name-entry-${id}">
                                                 <div class="checkmark-svg show svg-options">
                                                 </div>
                                                 <span>${listName}</span>
